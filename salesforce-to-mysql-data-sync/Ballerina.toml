@@ -2,7 +2,7 @@
 org = "wso2"
 name = "salesforce_sync"
 version = "1.0.0"
-distribution = "2201.7.5"
+distribution = "2201.13.0"
 
 [build-options]
 observabilityIncluded = true
