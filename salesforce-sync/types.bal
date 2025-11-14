@@ -15,7 +15,7 @@
 // under the License. 
 import ballerina/time;
 
-# Service supported sync types/objects
+# Service supported sync types/objects.
 enum SyncObject {
     ACCOUNT,
     OPPORTUNITY
