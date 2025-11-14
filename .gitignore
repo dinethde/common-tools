@@ -33,8 +33,6 @@
 # Ballerina
 target
 Config.toml
-config.env
-config.js
 
 # Git-Secret
 .gitsecret/keys/random_seed
