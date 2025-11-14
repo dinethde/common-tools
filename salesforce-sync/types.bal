@@ -29,216 +29,211 @@ enum LogStatus {
 }
 
 # Salesforce sync configuration.
-# 
-# + enabled - Enable/disable sync
-# + periodInHours - Time (minimum) period between sync in hours
-# + soqlQuery - Salesforce SOQL sync query
 type SfSyncConf record {
+    # Enable/disable sync
     boolean enabled;
+    # Time (minimum) period between sync in hours
     decimal periodInHours;
+    # Salesforce SOQL sync query
     string soqlQuery;
 };
 
 # Salesforce sync minimal configuration.
-# 
-# + enabled - Enable/disable sync
-# + periodInHours - Time (minimum) period between sync in hours
 type SfSyncMinimalConf record {
+    # Enable/disable sync
     boolean enabled;
+    # Time (minimum) period between sync in hours
     decimal periodInHours;
 };
 
 # [Configurable] Salesforce service configuration.
-# 
-# + refreshUrl - OAuth2 refresh token endpoint
-# + refreshToken - OAuth2 refresh token
-# + clientId - OAuth2 client ID
-# + clientSecret - OAuth2 client secret
 type SalesforceAuthConf record {|
+    # OAuth2 refresh token endpoint
     string refreshUrl;
+    # OAuth2 refresh token
     string refreshToken;
+    # OAuth2 client ID
     string clientId;
+    # OAuth2 client secret
     string clientSecret;
 |};
 
 # [Configurable] MySQL Database configuration.
-# 
-# + host - Hostname
-# + user - Username
-# + password - Password
-# + database - Default database
 type DatabaseConf record {|
+    # Hostname
     string host;
+    # Username
     string user;
+    # Password
     string password;
+    # Default database
     string database;
 |};
 
-# [Util] Salesforce API response error record
-# 
-# + errorCode - Salesforce generated error code
-# + message - Error message
+# [Util] Salesforce API response error record.
 type SalesforceResponseError record {
+    # Salesforce generated error code
     string errorCode;
+    # Error message
     string message;
 };
 
 # [Database] Sync log time retrieval record.
-# 
-# + id - Database row ID
-# + start_time - Sync start time
-# + end_time - Sync end time
 type DBSyncLogTimes record {|
+    # Database row ID
     int id;
+    # Sync start time
     time:Utc start_time;
+    # Sync end time
     time:Utc end_time;
 |};
 
 # [Salesforce] Account sync query record.
-# 
-# + Id - Account ID
-# + Name - Account name
-# + BillingCountry - Billing country
-# + ShippingCountry - Shipping country
-# + Sales_Regions__c - Sales regions
-# + Sub_Region__c - Sales sub-region
-# + NAICS_Industry__c - NAICS Industry
-# + Sub_Industry__c - NAICS sub-industry
-# + Account_Classification__c - Account classification
-# + ARR_Churn_Date__c - Churn date of the ARR account
-# + Owner - Account owner details
 type SFAccountSyncRecord record {
+    # Account ID
     string Id;
+    # Account name
     string Name;
+    # Billing Country
     string? BillingCountry;
+    # Shipping Country
     string? ShippingCountry;
+    # Sales region
     string? Sales_Regions__c;
+    # Sub region
     string? Sub_Region__c;
+    # NAICS Industry
     string? NAICS_Industry__c;
+    # NAICS Sub Industry
     string? Sub_Industry__c;
+    # Account Classification
     string? Account_Classification__c;
+    # ARR Churn Date
     string? ARR_Churn_Date__c;
+    # Owner record
     record {
+        # Owner Email
         string Email;
+        # Owner Name
         string Name;
     } Owner;
 };
 
 # [Salesforce] Opportunity sync query record.
-#
-# + Id - Opportunity ID
-# + Name - Opportunity name
-# + AccountId - Account ID
-# + CloseDate - Opportunity close date
-# + StageName - Opportunity stage
-# + Confidence__c - Confidence level
-# + Entry_Vector__c - Entry vector
-# + Primary_Partner_Role__c - Primary partner role
-# + Renewal_Delayed__c - Renewal delayed status
-# + ARR__c - Total ARR amount
-# + IAM_ARR__c - IAM ARR amount
-# + APIM_ARR__c - APIM ARR amount
-# + Integration_ARR__c - Integration ARR amount
-# + Open_Banking_ARR__c - Open Banking ARR amount
-# + Delayed_ARR__c - Delayed ARR amount
-# + IAM_Delayed_ARR__c - IAM Delayed ARR amount
-# + APIM_Delayed_ARR__c - APIM Delayed ARR amount
-# + Integration_Delayed__c - Integration Delayed ARR amount
-# + Cloud_ARR_Opportunity__c - Cloud ARR opportunity amount
-# + IAM_BU_ARR_Opportunity__c - IAM BU ARR opportunity amount
-# + APIM_ARR_Opportunity__c - APIM ARR opportunity amount
-# + Integration_BU_ARR_Opportunity__c - Integration BU ARR opportunity amount
-# + Choreo_ARR_Opportunity__c - Choreo ARR opportunity amount
-# + IAM_PSO__c - IAM PSO amount
-# + APIM_PSO__c - APIM PSO amount
-# + Integration_PSO__c - Integration PSO amount
-# + Choreo_PSO__c -Choreo PSO amount
-# + Cloud_ARR__c - Cloud ARR amount
-# + IAM_Cloud_ARR__c - IAM cloud ARR amount
-# + Integration_Cloud_ARR__c - Integration Cloud ARR amount
-# + Choreo_ARR__c - Choreo ARR amount
-# + APIM_Cloud_ARR__c - APIM Cloud ARR amount
-# + CL_ARR_Today__c - Cloud ARR today amount
-# + ARR_Cloud_ARR__c - Total Software + Cloud Products ARR value
-# + IAM_ARR_AND_Cloud__c - IAM Software and Cloud ARR value
-# + Integration_ARR_AND_Cloud__c - Integration Software and Cloud ARR value
-# + APIM_ARR_Cloud__c - APIM Software and Cloud ARR value
-# + Subs_Start_Date__c - Subscription Start Date (including cloud fields)
-# + Subs_End_Date__c - Subscription End Date (including cloud fields)
-# + Direct_Channel__c - Direct Channel information
-# + Forecast_Type1__c - Forecast type
-# + CL_Start_Date_Roll_Up__c - Cloud start date roll up date
-# + CL_End_Date_Roll_Up__c - Cloud end date roll up date
-# + PS_Support_Account_Start_Date_Roll_Up__c - PS support account start date roll up date
-# + PS_Support_Account_End_Date_Roll_Up__c - PS support account end date roll up date
-# + PS_Start_Date_Roll_Up__c - PS start date roll up date
-# + PS_End_Date_Roll_Up__c - PS end date roll up date
-# + Subscription_Start_Date__c - Subscription start date
-# + Subscription_End_Date__c - Subscription end date
-# + Owner - Account owner details
-# + Add_to_Forecast__c - Add to forecast (True/False)
-# + RecordType - Opportunity record type details
 type SFOpportunitySyncRecord record {
+    # Opportunity ID
     string Id;
+    # Opportunity name
     string Name;
+    # Account ID
     string AccountId;
+    # Opportunity close date
     string CloseDate;
+    # Opportunity stage
     string StageName;
+    # Confidence level
     string? Confidence__c;
+    # Primary partner role
     string? Primary_Partner_Role__c;
+    # Entry vector
     string? Entry_Vector__c;
+    # Renewal delayed status
     boolean Renewal_Delayed__c;
+    # Total ARR amount
     decimal ARR__c;
+    # IAM ARR amount
     decimal IAM_ARR__c;
+    # APIM ARR amount
     decimal APIM_ARR__c;
+    # Integration ARR amount
     decimal Integration_ARR__c;
+    # Open Banking ARR amount
     decimal Open_Banking_ARR__c;
+    # Delayed ARR amount
     decimal Delayed_ARR__c;
+    # IAM Delayed ARR amount
     decimal IAM_Delayed_ARR__c;
+    # APIM Delayed ARR amount
     decimal APIM_Delayed_ARR__c;
+    # Integration Delayed ARR amount
     decimal Integration_Delayed__c;
+    # Cloud ARR opportunity amount
     decimal? Cloud_ARR_Opportunity__c;
+    # IAM BU ARR opportunity amount
     decimal? IAM_BU_ARR_Opportunity__c;
+    # APIM ARR opportunity amount
     decimal? APIM_ARR_Opportunity__c;
+    # Integration BU ARR opportunity amount
     decimal? Integration_BU_ARR_Opportunity__c;
-    decimal? Choreo_ARR_Opportunity__c; 
+    # Choreo ARR opportunity amount
+    decimal? Choreo_ARR_Opportunity__c;
+    # IAM PSO amount
     decimal? IAM_PSO__c;
+    # APIM PSO amount
     decimal? APIM_PSO__c;
+    # Integration PSO amount
     decimal? Integration_PSO__c;
+    # Choreo PSO amount
     decimal? Choreo_PSO__c;
+    # Cloud ARR amount
     decimal? Cloud_ARR__c;
+    # IAM cloud ARR amount
     decimal? IAM_Cloud_ARR__c;
+    # Integration Cloud ARR amount
     decimal? Integration_Cloud_ARR__c;
+    # Choreo ARR amount
     decimal? Choreo_ARR__c;
+    # APIM Cloud ARR amount
     decimal? APIM_Cloud_ARR__c;
+    # Cloud ARR today amount
     decimal CL_ARR_Today__c;
+    # Total Software + Cloud Products ARR value
     decimal? ARR_Cloud_ARR__c;
+    # IAM Software and Cloud ARR value
     decimal? IAM_ARR_AND_Cloud__c;
+    # Integration Software and Cloud ARR value
     decimal? Integration_ARR_AND_Cloud__c;
+    # APIM Software and Cloud ARR value
     decimal? APIM_ARR_Cloud__c;
+    # Subscription Start Date (including cloud fields)
     string? Subs_Start_Date__c;
+    # Subscription End Date (including cloud fields)
     string? Subs_End_Date__c;
+    # Direct Channel information
     string? Direct_Channel__c;
+    # Forecast type
     string? Forecast_Type1__c;
+    # Cloud start date roll up date
     string? CL_Start_Date_Roll_Up__c;
+    # Cloud end date roll up date
     string? CL_End_Date_Roll_Up__c;
+    # PS support account start date roll up date
     string? PS_Support_Account_Start_Date_Roll_Up__c;
+    # PS support account end date roll up date
     string? PS_Support_Account_End_Date_Roll_Up__c;
+    # PS start date roll up date
     string? PS_Start_Date_Roll_Up__c;
+    # PS end date roll up date
     string? PS_End_Date_Roll_Up__c;
+    # Subscription start date
     string? Subscription_Start_Date__c;
+    # Subscription end date
     string? Subscription_End_Date__c;
+    # Add to forecast (True/False)
     boolean Add_to_Forecast__c;
+    # Account owner details
     record {
+        # Owner Email
         string Email;
+        # Owner Name
         string Name;
     } Owner;
+    # Opportunity record type details
     SFRecordType? RecordType;
 };
 
-# Type representing RecordType table in SF.
-#
-# + Name - Name of the record type (Renewal, Expansion, First Sale etc.)
+# [Salesforce] Record type details.
 public type SFRecordType record {
+    # Name of the record type (Renewal, Expansion, First Sale etc.)
     string? Name;
 };
