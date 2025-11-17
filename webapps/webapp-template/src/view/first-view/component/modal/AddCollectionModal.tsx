@@ -53,12 +53,11 @@ const AddCollectionModal: React.FC<{ toggleClose: () => void }> = ({ toggleClose
   });
 
   useEffect(() => {
-    if (collection.submitState === "success") {
+    if (collection.submitState === State.success) {
       dispatch(resetSubmitSate()); // Resetting the submit state
       toggleClose();
     }
-  }, [collection.submitState]);
-
+}, [collection.submitState, dispatch, toggleClose]); // ✅ Complete dependencies
   const formik = useFormik({
     initialValues: {
       collectionName: "",
