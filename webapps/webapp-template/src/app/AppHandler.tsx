@@ -16,10 +16,10 @@
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Layout from "@layout/Layout";
-import Error from "@layout/pages/404";
+import NotFoundPage from "@layout/pages/404";
 import MaintenancePage from "@layout/pages/Maintenance";
 import ErrorHandler from "@component/common/ErrorHandler";
 import PreLoader from "@component/common/PreLoader";
@@ -35,14 +35,15 @@ const AppHandler = () => {
   const auth = useAppSelector((state: RootState) => state.auth);
   const appConfig = useAppSelector((state: RootState) => state.appConfig);
 
-  const router = createBrowserRouter([
+  const router = useMemo(() => 
+    createBrowserRouter([
     {
       path: "/",
       element: <Layout />,
-      errorElement: <Error />,
+      errorElement: <NotFoundPage />,
       children: getActiveRoutesV2(routes, auth.roles),
     },
-  ]);
+  ]), [auth.roles])
 
   useEffect(() => {
     if (auth.status === "loading") {
@@ -54,7 +55,7 @@ const AppHandler = () => {
     } else if (auth.mode === "maintenance") {
       setAppState("maintenance");
     }
-  }, [auth.status, appConfig.state]);
+  }, [auth.status, auth.mode]);
 
   const renderApp = () => {
     switch (appState) {
