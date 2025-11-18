@@ -13,9 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import { Grid, Stack, Typography } from "@mui/material";
 
 import React from "react";
-import { Stack, Grid, Typography } from "@mui/material";
 
 interface CandidateInfoCardProps {
   title: string;
@@ -47,33 +47,30 @@ const CandidateMainInfoCard = ({ title, items }: CandidateInfoCardProps) => {
       </Typography>
       <Stack gap={1}>
         {items.map((item) => (
-          <Stack flexDirection={"row"} gap={1}>
+          <Stack key={item.title} flexDirection={"row"} gap={1}>
             {React.cloneElement(item.icon, {
               sx: {
                 color: "secondary.dark",
                 fontSize: 15,
               },
             })}
-
-            <Typography
-              variant="body2"
-              color="secondary.main"
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 1.5,
-                fontWeight: "bold",
-              }}
-            >
-              {item.title} :
+            <>
               <Typography
-                variant="body1"
-                color="secondary.dark"
-                sx={{ fontWeight: "bold" }}
+                variant="body2"
+                color="secondary.main"
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 1.5,
+                  fontWeight: "bold",
+                }}
               >
+                {item.title} :
+              </Typography>
+              <Typography variant="body1" color="secondary.dark" sx={{ fontWeight: "bold" }}>
                 {item.subTitle}
               </Typography>
-            </Typography>
+            </>
           </Stack>
         ))}
       </Stack>
