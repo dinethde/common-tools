@@ -76,11 +76,11 @@ export default function BasicBreadcrumbs() {
           const isLong = path.length >= MAX_LENGTH;
           const label =
             !isLast && isLong ? (
-              <Typography variant="body2" sx={{ fontSize: "12px" }}>
+              <Typography key={`${path}-truncated`} variant="body2" sx={{ fontSize: "12px" }}>
                 {path.slice(0, 4)}...
               </Typography>
             ) : (
-              <Typography variant="body2" sx={{ fontSize: "12px" }}>
+              <Typography key={`${path}-full`} variant="body2" sx={{ fontSize: "12px" }}>
                 {path}
               </Typography>
             );
