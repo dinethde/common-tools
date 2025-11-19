@@ -49,8 +49,8 @@ Retrieve the logged-in user's details.
   }
   ```
   </td>
-    <tr>
     </tr>
+    <tr>
       <td> 400 </td><td> Bad Request <br/>
   
   ```json
