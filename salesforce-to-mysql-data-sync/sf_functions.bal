@@ -33,10 +33,6 @@ final salesforce:Client salesforceEP = check new ({
         count: 3,
         interval: 5.0,
         statusCodes: [http:STATUS_INTERNAL_SERVER_ERROR, http:STATUS_SERVICE_UNAVAILABLE]
-    },
-    httpVersion: http:HTTP_1_1,
-    http1Settings: {
-        keepAlive: http:KEEPALIVE_NEVER
     }
 });
 
