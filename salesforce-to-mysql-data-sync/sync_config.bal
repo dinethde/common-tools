@@ -50,7 +50,6 @@ function getSyncConfig(string syncObj) returns SfSyncConf|error {
                         AccountId,
                         CloseDate,
                         StageName,
-                        RecordType.Name,
                         Owner.Email,
                         Owner.Name
                     FROM
