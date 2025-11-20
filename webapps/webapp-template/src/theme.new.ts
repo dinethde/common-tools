@@ -79,10 +79,6 @@ const extractTypography = () => {
 export const tokens = (mode: PaletteMode) => {
   const colors = extractColors();
 
-  console.log("Colors : ", colors)
-
-  console.log("Colors : ",colors)
-
   return {
     ...(mode === "dark"
       ? {
@@ -129,9 +125,10 @@ export const tokens = (mode: PaletteMode) => {
           // Navigation colors - Dark mode
           navigation: {
             text: "#ffffff8f",
+            bg: "rgba(255, 115, 0, 0.2)",
             hover: "#ffffffd9",
             hoverBg: "#ffffff0a",
-            clicked: colors.neutral.white,
+            clicked: "#ffffff",
             clickedBg: "#ffffff14",
           },
 
@@ -178,20 +175,20 @@ export const tokens = (mode: PaletteMode) => {
           // Text colors - Light mode (from Figma design tokens)
           text: {
             primary: {
-              p1: { active: colors.neutral.white, hover: "#ffffff" },
-              p2: { active: colors.neutral["400"], hover: "#ffffff" },
-              p3: { active: colors.neutral["800"], hover: "#ffffff" },
-              p4: { active: colors.neutral["1300"], hover: "#ffffff" },
+              p1: { active: colors.neutral.black, hover: "#ffffff" },
+              p2: { active: colors.neutral["1600"], hover: "#ffffff" },
+              p3: { active: colors.neutral["1200"], hover: "#ffffff" },
+              p4: { active: colors.neutral["700"], hover: "#ffffff" },
             },
             brand: {
               p1: { active: colors.primary["brand"], hover: "#ffffff", disabled: "#ff730096" },
             },
           },
 
-          // Border colors - Light mode (from Figma design tokens)
+          // Border colors - Light mode
           border: {
             primary: {
-              active: colors.neutral.white,
+              active: colors.neutral.black,
               hover: colors.neutral.white,
               clicked: colors.neutral.white,
               disabled: colors.neutral.white,
@@ -203,8 +200,8 @@ export const tokens = (mode: PaletteMode) => {
               disabled: colors.neutral.white,
             },
             territory: {
-              active: colors.neutral["1700"],
-              hover: colors.neutral["1500"],
+              active: colors.neutral["200"],
+              hover: colors.neutral["400"],
               clicked: colors.neutral.white,
               disabled: colors.neutral.white,
             },
@@ -212,11 +209,12 @@ export const tokens = (mode: PaletteMode) => {
 
           // Navigation colors - Light mode
           navigation: {
-            text: colors.neutral["1200"],
-            hover: colors.neutral["1400"],
-            hoverBg: "#0000000a",
-            clicked: colors.neutral.black,
-            clickedBg: "#00000014",
+            text: "#ffffff8f",
+            bg: "rgba(255, 115, 0, 0.2)",
+            hover: "#ffffffd9",
+            hoverBg: "#ffffff0a",
+            clicked: "#ffffff",
+            clickedBg: "#ffffff14",
           },
 
           // Surface colors (from color tokens)
@@ -350,6 +348,7 @@ declare module "@mui/material/styles" {
     };
     customNavigation?: {
       text?: string;
+      bg?: string;
       hover?: string;
       hoverBg?: string;
       clicked?: string;
@@ -427,7 +426,7 @@ export const themeSettings = (mode: PaletteMode) => {
       customNavigation: colors.navigation,
       surface: colors.surface,
       fill: colors.fill,
-      customText: colors.text
+      customText: colors.text,
     },
     typography: {
       fontSize: 14,
