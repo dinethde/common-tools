@@ -14,22 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import TabsPage from "@root/src/layout/pages/TabsPage";
-import UserGuide from "@view/help/panel/userGuide";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-
-export default function Help() {
+export default function NestedPage() {
   return (
-    <TabsPage
-      title="Help"
-      tabsPage={[
-        {
-          tabTitle: "User Guide",
-          tabPath: "user-guide",
-          icon: <MenuBookIcon />,
-          page: <UserGuide />,
-        },
-      ]}
-    />
+    <div>
+      <div>Page Two</div>
+    </div>
   );
 }

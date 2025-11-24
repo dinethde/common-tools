@@ -28,9 +28,9 @@ import type { RouteDetail, RouteObjectWithRole } from "./types/types";
 export const routes: RouteObjectWithRole[] = [
   {
     path: "/",
-    text: "First View",
+    text: "Home",
     icon: React.createElement(HomeIcon),
-    element: React.createElement(View.firstView),
+    element: React.createElement(View.home),
     allowRoles: [Role.ADMIN, Role.EMPLOYEE],
   },
   {
