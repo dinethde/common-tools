@@ -30,7 +30,7 @@ export const routes: RouteObjectWithRole[] = [
     path: "/",
     text: "Home",
     icon: React.createElement(HomeIcon),
-    element: React.createElement(View.home),
+    element: React.createElement(View.firstView),
     allowRoles: [Role.ADMIN, Role.EMPLOYEE],
   },
   {
