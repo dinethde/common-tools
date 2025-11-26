@@ -28,14 +28,21 @@ import (
 
 	"github.com/wso2-enterprise/digiops-finance/bigquery-flash-data-sync/internal/config"
 	"github.com/wso2-enterprise/digiops-finance/bigquery-flash-data-sync/internal/logger"
+	"github.com/wso2-enterprise/digiops-finance/bigquery-flash-data-sync/internal/model"
 	"github.com/wso2-enterprise/digiops-finance/bigquery-flash-data-sync/internal/pipeline"
 
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
-// main initializes logging, configuration, security settings, and application context,
-// then starts the BigQuery data synchronization pipeline and handles any critical failures.
+// Version information (set via ldflags during build)
+var (
+	Version   = "dev"
+	BuildTime = "unknown"
+	GitCommit = "unknown"
+)
+
+// main initializes logging, configuration, and starts the sync pipeline.
 func main() {
 	// Initialize logger first
 	logger.InitLogger()
@@ -48,15 +55,18 @@ func main() {
 		username = currentUser.Username
 	}
 
-	// Log application initialization
-	logger.Logger.Info("Initializing BigQuery Data Sync",
+	// Log application startup with version info
+	logger.Logger.Info("Starting BigQuery Data Sync Tool",
+		zap.String("version", Version),
+		zap.String("build_time", BuildTime),
+		zap.String("git_commit", GitCommit),
 		zap.String("user", username),
 		zap.String("timestamp", time.Now().Format(time.RFC3339)),
 	)
 
-	// Load .env file to populate environment variables
+	// Load .env file (optional in production)
 	if err := godotenv.Load(); err != nil {
-		logger.Logger.Warn("No .env file found, using environment variables", zap.Error(err))
+		logger.Logger.Debug("No .env file found, using environment variables")
 	} else {
 		logger.Logger.Info(".env file loaded successfully")
 	}
@@ -67,12 +77,50 @@ func main() {
 	if err != nil {
 		logger.Logger.Fatal("Failed to load configuration", zap.Error(err))
 	}
-	logger.Logger.Info("Configuration loaded successfully")
+
+	// Log configuration summary
+	logConfigSummary(cfg)
+
+	// Create context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.SyncTimeout)
 	defer cancel()
-	logger.Logger.Info("Starting data sync pipeline")
+
+	// Run the sync pipeline
+	logger.Logger.Info("Starting data sync pipeline",
+		zap.Duration("timeout", cfg.SyncTimeout),
+		zap.Bool("dry_run", cfg.DryRun),
+	)
+
 	if err := pipeline.Start(ctx, cfg, logger.Logger); err != nil {
 		logger.Logger.Fatal("Data sync pipeline failed", zap.Error(err))
 	}
+
 	logger.Logger.Info("Data sync completed successfully")
+}
+
+// logConfigSummary logs a summary of the loaded configuration
+func logConfigSummary(cfg *model.Config) {
+	totalTables := 0
+	for dbName, dbConfig := range cfg.Databases {
+		enabledTables := 0
+		for _, tblConfig := range dbConfig.Tables {
+			if tblConfig.Enabled {
+				enabledTables++
+			}
+		}
+		totalTables += enabledTables
+		logger.Logger.Info("Database configured",
+			zap.String("name", dbName),
+			zap.String("type", dbConfig.Type),
+			zap.Bool("enabled", dbConfig.Enabled),
+			zap.Int("tables", enabledTables),
+		)
+	}
+
+	logger.Logger.Info("Configuration summary",
+		zap.String("gcp_project", cfg.GCPProjectID),
+		zap.String("bq_dataset", cfg.BigQueryDatasetID),
+		zap.Int("databases", len(cfg.Databases)),
+		zap.Int("total_tables", totalTables),
+	)
 }
