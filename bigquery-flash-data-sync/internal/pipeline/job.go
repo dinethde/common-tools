@@ -291,41 +291,57 @@ func executeJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Confi
 	defer rows.Close()
 
 	// In-Memory Buffer
+	const maxRowsPerBatch = 50000
+
 	var buf bytes.Buffer
 	encoder := json.NewEncoder(&buf)
-	logger.Debug("Starting data extraction to in-memory buffer")
 
+	var batch []model.Savable
 	var totalRowsExtracted int64
+	var skippedRows int
 	rowNum := 0
-	skippedRows := 0
 
 	for rows.Next() {
 		rowNum++
-		row, err := job.ParseFunc(rows, logger)
+		rowData, err := job.ParseFunc(rows, logger)
 		if err != nil {
-			logger.Error("Failed to parse row",
-				zap.Int("row_number", rowNum),
-				zap.Error(err),
-			)
+			logger.Error("Failed to parse row", zap.Int("row_number", rowNum), zap.Error(err))
 			skippedRows++
 			continue
 		}
 
-		if err := encoder.Encode(row.ToSaveable()); err != nil {
-			logger.Error("Failed to write row to memory buffer",
-				zap.Int("row_number", rowNum),
-				zap.Error(err),
-			)
-			return 0, fmt.Errorf("failed to write row to memory buffer: %w", err)
-		}
+		batch = append(batch, rowData)
 
-		totalRowsExtracted++
+		if len(batch) >= maxRowsPerBatch {
+			// Encode batch into buffer
+			for _, r := range batch {
+				if err := encoder.Encode(r.ToSaveable()); err != nil {
+					return 0, fmt.Errorf("failed to encode batch: %w", err)
+				}
+			}
 
-		if totalRowsExtracted%10000 == 0 {
-			logger.Debug("Extraction progress",
-				zap.Int64("rows_extracted", totalRowsExtracted),
-			)
+			// Upload this batch to BigQuery
+			if err := uploadBufferToBigQuery(ctx, bqClient, cfg, job.TargetTable, &buf, cfg.TruncateOnSync && totalRowsExtracted == 0); err != nil {
+				return 0, err
+			}
+
+			totalRowsExtracted += int64(len(batch))
+			buf.Reset()
+			batch = batch[:0]
 		}
+	}
+
+	// Upload any remaining rows
+	if len(batch) > 0 {
+		for _, r := range batch {
+			if err := encoder.Encode(r.ToSaveable()); err != nil {
+				return 0, fmt.Errorf("failed to encode batch: %w", err)
+			}
+		}
+		if err := uploadBufferToBigQuery(ctx, bqClient, cfg, job.TargetTable, &buf, cfg.TruncateOnSync && totalRowsExtracted == 0); err != nil {
+			return 0, err
+		}
+		totalRowsExtracted += int64(len(batch))
 	}
 
 	if err := rows.Err(); err != nil {
@@ -418,4 +434,38 @@ func logSyncSummary(logger *zap.Logger, summary *model.SyncSummary) {
 			)
 		}
 	}
+}
+
+// uploadBufferToBigQuery uploads the JSON data stored in an in-memory buffer to a BigQuery table.
+// It creates a BigQuery load job using the provided buffer as the source. The `truncate` flag
+// controls whether the target table is overwritten (WriteTruncate) or appended to (WriteAppend).
+// After the upload completes successfully, the buffer is reset for reuse.
+// Returns an error if the load job creation, execution, or completion fails.
+func uploadBufferToBigQuery(ctx context.Context, bqClient *bigquery.Client, cfg *model.Config, table string, buf *bytes.Buffer, truncate bool) error {
+	source := bigquery.NewReaderSource(buf)
+	source.SourceFormat = bigquery.JSON
+
+	loader := bqClient.Dataset(cfg.BigQueryDatasetID).Table(table).LoaderFrom(source)
+	if truncate {
+		loader.WriteDisposition = bigquery.WriteTruncate
+	} else {
+		loader.WriteDisposition = bigquery.WriteAppend
+	}
+
+	bqJob, err := loader.Run(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create BigQuery load job: %w", err)
+	}
+
+	status, err := bqJob.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to wait for BigQuery job: %w", err)
+	}
+
+	if err := status.Err(); err != nil {
+		return fmt.Errorf("BigQuery load job failed: %w", err)
+	}
+
+	buf.Reset()
+	return nil
 }
