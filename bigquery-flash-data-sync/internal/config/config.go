@@ -182,9 +182,9 @@ func loadTableConfigs(logger *zap.Logger, dbID string) (map[string]*model.TableC
 	}
 
 	tables := make(map[string]*model.TableConfig)
-	tableList := strings.SplitSeq(tablesStr, ",")
+	tableList := strings.Split(tablesStr, ",")
 
-	for tableName := range tableList {
+	for _, tableName := range tableList {
 		tableName = strings.TrimSpace(tableName)
 		if tableName == "" {
 			continue
