@@ -1,21 +1,21 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com). 
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache. org/licenses/LICENSE-2. 0
 //
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
+// KIND, either express or implied.   See the License for the
 // specific language governing permissions and limitations
 // under the License.
 
 // Package config is responsible for loading and parsing all environment variables
-// needed for the application to run. It supports dynamic configuration for any
+// needed for the application to run.  It supports dynamic configuration for any
 // number of databases and tables.
 package config
 
@@ -47,12 +47,13 @@ const (
 	DateFormatKey       = "DATE_FORMAT"
 	DefaultBatchSizeKey = "DEFAULT_BATCH_SIZE"
 
-	DryRunKey         = "DRY_RUN"
-	CreateTablesKey   = "AUTO_CREATE_TABLES"
-	TruncateOnSyncKey = "TRUNCATE_ON_SYNC"
+	DryRunKey              = "DRY_RUN"
+	CreateTablesKey        = "AUTO_CREATE_TABLES"
+	TruncateOnSyncKey      = "TRUNCATE_ON_SYNC"
+	MaxRowParseFailuresKey = "MAX_ROW_PARSE_FAILURES"
 )
 
-// LoadConfig reads all required environment variables and builds database connection strings.
+// LoadConfig reads all required environment variables and builds database connection strings. 
 // It supports dynamic configuration for any number of databases and tables.
 func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 	logger.Info("Loading configuration from environment variables")
@@ -61,12 +62,12 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 	bqDatasetID := getEnv(BQDatasetID, "")
 
 	if gcpProjectID == "" || bqDatasetID == "" {
-		return nil, fmt.Errorf("GCP_PROJECT_ID and BQ_DATASET_ID are required")
+		return nil, fmt. Errorf("GCP_PROJECT_ID and BQ_DATASET_ID are required")
 	}
 
 	dbNames := getEnv(DatabasesKey, "")
 	if dbNames == "" {
-		return nil, fmt.Errorf("SYNC_DATABASES is required (comma-separated list of database identifiers)")
+		return nil, fmt. Errorf("SYNC_DATABASES is required (comma-separated list of database identifiers)")
 	}
 
 	databases := make(map[string]*model.DatabaseConfig)
@@ -85,17 +86,18 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 		databases[dbName] = dbConfig
 		logger.Info("Loaded database configuration",
 			zap.String("database", dbName),
-			zap.Int("tables", len(dbConfig.Tables)),
+			zap. Int("tables", len(dbConfig.Tables)),
 		)
 	}
 
 	if len(databases) == 0 {
-		return nil, fmt.Errorf("no valid database configurations found")
+		return nil, fmt. Errorf("no valid database configurations found")
 	}
 
 	maxOpen := parseInt(logger, DBMaxOpenConns, "10", 10)
 	maxIdle := parseInt(logger, DBMaxIdleConns, "10", 10)
 	defaultBatchSize := parseInt(logger, DefaultBatchSizeKey, "1000", 1000)
+	maxRowParseFailures := parseInt(logger, MaxRowParseFailuresKey, "100", 100)
 
 	syncTimeout := parseDuration(logger, SyncTimeoutKey, "10m", 10*time.Minute)
 	connMaxLifetime := parseDuration(logger, DBConnMaxLifetime, "1m", 1*time.Minute)
@@ -104,19 +106,20 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 	createTables := parseBool(getEnv(CreateTablesKey, "true"))
 	truncateOnSync := parseBool(getEnv(TruncateOnSyncKey, "false"))
 
-	cfg := &model.Config{
-		GCPProjectID:      gcpProjectID,
-		BigQueryDatasetID: bqDatasetID,
-		Databases:         databases,
-		SyncTimeout:       syncTimeout,
-		DateFormat:        getEnv(DateFormatKey, "2006-01-02T15:04:05Z07:00"),
-		DefaultBatchSize:  defaultBatchSize,
-		MaxOpenConns:      maxOpen,
-		MaxIdleConns:      maxIdle,
-		ConnMaxLifetime:   connMaxLifetime,
-		DryRun:            dryRun,
-		CreateTables:      createTables,
-		TruncateOnSync:    truncateOnSync,
+	cfg := &model. Config{
+		GCPProjectID:        gcpProjectID,
+		BigQueryDatasetID:   bqDatasetID,
+		Databases:           databases,
+		SyncTimeout:         syncTimeout,
+		DateFormat:          getEnv(DateFormatKey, "2006-01-02T15:04:05Z07:00"),
+		DefaultBatchSize:    defaultBatchSize,
+		MaxOpenConns:        maxOpen,
+		MaxIdleConns:        maxIdle,
+		ConnMaxLifetime:     connMaxLifetime,
+		DryRun:              dryRun,
+		CreateTables:        createTables,
+		TruncateOnSync:      truncateOnSync,
+		MaxRowParseFailures: maxRowParseFailures,
 	}
 
 	logger.Info("Configuration loaded successfully",
@@ -124,6 +127,7 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 		zap.String("bq_dataset", cfg.BigQueryDatasetID),
 		zap.Int("database_count", len(databases)),
 		zap.Bool("dry_run", cfg.DryRun),
+		zap.Int("max_row_parse_failures", cfg.MaxRowParseFailures),
 	)
 
 	return cfg, nil
@@ -144,7 +148,7 @@ func loadDatabaseConfig(logger *zap.Logger, dbID string) (*model.DatabaseConfig,
 	enabled := parseBool(getEnv(prefix+"ENABLED", "true"))
 
 	if database == "" || user == "" {
-		return nil, fmt.Errorf("missing required config: %sDB_NAME and %sDB_USER are required", prefix, prefix)
+		return nil, fmt. Errorf("missing required config: %sDB_NAME and %sDB_USER are required", prefix, prefix)
 	}
 
 	connString := buildConnectionString(dbType, host, port, database, user, password, prefix)
@@ -191,7 +195,7 @@ func loadTableConfigs(logger *zap.Logger, dbID string) (map[string]*model.TableC
 	}
 
 	if len(tables) == 0 {
-		return nil, fmt.Errorf("no valid tables found for database '%s'", dbID)
+		return nil, fmt. Errorf("no valid tables found for database '%s'", dbID)
 	}
 
 	return tables, nil
@@ -239,7 +243,7 @@ func buildConnectionString(dbType, host, port, database, user, password, prefix 
 	switch dbType {
 	case "mysql":
 		return fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s?tls=true&parseTime=true&timeout=%s&readTimeout=%s&writeTimeout=%s",
+			"%s:%s@tcp(%s:%s)/%s? tls=true&parseTime=true&timeout=%s&readTimeout=%s&writeTimeout=%s",
 			user, password, host, port, database,
 			connTimeout, readTimeout, writeTimeout,
 		)
@@ -270,11 +274,11 @@ func getEnv(key, defaultValue string) string {
 // and returns the provided fallback integer.
 func parseInt(logger *zap.Logger, key, defaultValue string, fallback int) int {
 	v := getEnv(key, defaultValue)
-	i, err := strconv.Atoi(v)
+	i, err := strconv. Atoi(v)
 	if err != nil {
-		logger.Warn(fmt.Sprintf("Invalid %s, using default", key),
+		logger. Warn(fmt.Sprintf("Invalid %s, using default", key),
 			zap.String("value", v),
-			zap.Int("default", fallback),
+			zap. Int("default", fallback),
 			zap.Error(err))
 		return fallback
 	}
@@ -297,7 +301,7 @@ func parseDuration(logger *zap.Logger, key, defaultValue string, fallback time.D
 	return d
 }
 
-// parseBool converts a string into a boolean. It returns true for common
+// parseBool converts a string into a boolean.  It returns true for common
 // truthy values ("true", "1", "yes") and false otherwise.
 func parseBool(value string) bool {
 	v := strings.ToLower(strings.TrimSpace(value))

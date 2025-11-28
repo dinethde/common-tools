@@ -82,9 +82,10 @@ type Config struct {
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
 
-	DryRun         bool
-	CreateTables   bool
-	TruncateOnSync bool
+	DryRun              bool
+	CreateTables        bool
+	TruncateOnSync      bool
+	MaxRowParseFailures int `json:"max_row_parse_failures"`
 }
 
 // Job represents a sync job for a specific table.
