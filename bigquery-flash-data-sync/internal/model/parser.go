@@ -1,6 +1,6 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2025 WSO2 LLC.  (https://www.wso2.com).
 //
-// WSO2 LLC. licenses this file to you under the Apache License,
+// WSO2 LLC.  licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -20,7 +20,9 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"go.uber.org/zap"
 )
@@ -54,6 +56,7 @@ func ParseDynamicRow(rows *sql.Rows, logger *zap.Logger, dateFormat string) (*Dy
 }
 
 // convertValue converts SQL values to appropriate Go types for BigQuery.
+// It sanitizes invalid UTF-8 sequences in byte slices to prevent BigQuery JSON upload failures.
 func convertValue(val any, dateFormat string, logger *zap.Logger) any {
 	if val == nil {
 		return nil
@@ -61,7 +64,13 @@ func convertValue(val any, dateFormat string, logger *zap.Logger) any {
 
 	switch v := val.(type) {
 	case []byte:
-		return string(v)
+		s := string(v)
+		if !utf8.Valid(v) {
+			logger.Debug("Invalid UTF-8 sequence detected, sanitizing",
+				zap.Int("original_length", len(v)))
+			return strings.ToValidUTF8(s, "")
+		}
+		return s
 	case time.Time:
 		if v.IsZero() {
 			return nil
@@ -76,6 +85,11 @@ func convertValue(val any, dateFormat string, logger *zap.Logger) any {
 	case bool:
 		return v
 	case string:
+		if !utf8.ValidString(v) {
+			logger.Debug("Invalid UTF-8 string detected, sanitizing",
+				zap.Int("original_length", len(v)))
+			return strings.ToValidUTF8(v, "")
+		}
 		return v
 	default:
 		logger.Debug("Converting unknown type to string",

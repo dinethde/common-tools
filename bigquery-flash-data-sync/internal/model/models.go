@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC.  (https://www.wso2.com). 
+// Copyright (c) 2025 WSO2 LLC.  (https://www.wso2.com).
 //
 // WSO2 LLC.  licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -12,7 +12,7 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License. 
+// under the License.
 
 // Package model contains all data structures, BigQuery schemas, and data transformation methods.
 // It acts as the "model" layer for the ETL pipeline.
@@ -26,7 +26,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Savable defines the interface for types that can be converted to a map for storage. 
+// Savable defines the interface for types that can be converted to a map for storage.
 type Savable interface {
 	ToSaveable() map[string]any
 }
@@ -140,13 +140,13 @@ type DataSource struct {
 // Returns true only if no missing or mismatched fields are detected.
 func SchemasMatch(s1, s2 bigquery.Schema, logger *zap.Logger) bool {
 	logger.Debug("Comparing BigQuery schemas",
-		zap. Int("schema1_fields", len(s1)),
+		zap.Int("schema1_fields", len(s1)),
 		zap.Int("schema2_fields", len(s2)))
 
 	if len(s1) != len(s2) {
 		logger.Warn("Schema field count mismatch",
 			zap.Int("schema1_count", len(s1)),
-			zap. Int("schema2_count", len(s2)))
+			zap.Int("schema2_count", len(s2)))
 		return false
 	}
 
@@ -161,16 +161,16 @@ func SchemasMatch(s1, s2 bigquery.Schema, logger *zap.Logger) bool {
 		s1Field, ok := mapS1[field.Name]
 		if !ok {
 			mismatches = append(mismatches, "missing:"+field.Name)
-		} else if s1Field. Type != field.Type {
+		} else if s1Field.Type != field.Type {
 			mismatches = append(mismatches, "type:"+field.Name)
-		} else if s1Field. Required != field.Required {
+		} else if s1Field.Required != field.Required {
 			mismatches = append(mismatches, "required:"+field.Name)
 		}
 	}
 
 	if len(mismatches) > 0 {
-		logger. Warn("Schema mismatches detected",
-			zap. Strings("mismatches", mismatches))
+		logger.Warn("Schema mismatches detected",
+			zap.Strings("mismatches", mismatches))
 		return false
 	}
 
@@ -178,19 +178,19 @@ func SchemasMatch(s1, s2 bigquery.Schema, logger *zap.Logger) bool {
 	return true
 }
 
-// ToSaveable converts a DynamicRow into a map representation using column names as keys. 
-// Iterates through all columns and assigns corresponding values from the row. 
+// ToSaveable converts a DynamicRow into a map representation using column names as keys.
+// Iterates through all columns and assigns corresponding values from the row.
 // Returns a generic map[string]any suitable for serialization or database storage.
 func (r *DynamicRow) ToSaveable() map[string]any {
 	result := make(map[string]any)
-	if len(r.Values) != len(r. ColumnNames) {
-		minLen := min(len(r. Values), len(r. ColumnNames))
+	if len(r.Values) != len(r.ColumnNames) {
+		minLen := min(len(r.Values), len(r.ColumnNames))
 		for i := range minLen {
 			result[r.ColumnNames[i]] = r.Values[i]
 		}
 		return result
 	}
-	for i, colName := range r. ColumnNames {
+	for i, colName := range r.ColumnNames {
 		result[colName] = r.Values[i]
 	}
 	return result
@@ -210,7 +210,7 @@ func (c *Config) GetEnabledDatabases() []*DatabaseConfig {
 // GetEnabledTables returns a slice of enabled table configurations for a database.
 func (db *DatabaseConfig) GetEnabledTables() []*TableConfig {
 	var enabled []*TableConfig
-	for _, tbl := range db. Tables {
+	for _, tbl := range db.Tables {
 		if tbl.Enabled {
 			enabled = append(enabled, tbl)
 		}
@@ -218,16 +218,16 @@ func (db *DatabaseConfig) GetEnabledTables() []*TableConfig {
 	return enabled
 }
 
-// GetTargetTableName returns the target BigQuery table name. 
+// GetTargetTableName returns the target BigQuery table name.
 // If TargetTable is not set, returns the source table name.
 func (t *TableConfig) GetTargetTableName() string {
 	if t.TargetTable != "" {
-		return t. TargetTable
+		return t.TargetTable
 	}
 	return t.Name
 }
 
-// GetBatchSize returns the batch size to use for this table. 
+// GetBatchSize returns the batch size to use for this table.
 // Returns the table-specific batch size if set, otherwise returns the provided default.
 func (t *TableConfig) GetBatchSize(defaultSize int) int {
 	if t.BatchSize > 0 {
