@@ -9,10 +9,10 @@
 //
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+// OF ANY KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.
+// under the License
 
 // Package config is responsible for loading and parsing all environment variables
 // needed for the application to run.  It supports dynamic configuration for any
@@ -237,38 +237,41 @@ func loadTableConfig(logger *zap.Logger, dbID, tableName string) *model.TableCon
 
 // buildConnectionString creates a database connection string based on type
 func buildConnectionString(dbType, host, port, database, user, password, prefix string) string {
-	connTimeout := getEnv(prefix+"DB_CONN_TIMEOUT", "30s")
-	readTimeout := getEnv(prefix+"DB_READ_TIMEOUT", "60s")
-	writeTimeout := getEnv(prefix+"DB_WRITE_TIMEOUT", "60s")
+    connTimeout := getEnv(prefix+"DB_CONN_TIMEOUT", "30s")
+    readTimeout := getEnv(prefix+"DB_READ_TIMEOUT", "60s")
+    writeTimeout := getEnv(prefix+"DB_WRITE_TIMEOUT", "60s")
 
-	switch dbType {
-	case "mysql":
-		return fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s?tls=true&parseTime=true&timeout=%s&readTimeout=%s&writeTimeout=%s",
-			user, password, host, port, database,
-			connTimeout, readTimeout, writeTimeout,
-		)
-	case "postgres":
-		// parse duration and fall back to a sensible default (30s) if parsing fails or yields 0
-		connTimeoutDur, err := time.ParseDuration(connTimeout)
-		connTimeoutSec := 30
-		if err == nil {
-			connTimeoutSec = int(connTimeoutDur.Seconds())
-			if connTimeoutSec == 0 {
-				connTimeoutSec = 30
-			}
-		}
+    switch dbType {
+    case "mysql":
+        return fmt.Sprintf(
+            "%s:%s@tcp(%s:%s)/%s?tls=true&parseTime=true&timeout=%s&readTimeout=%s&writeTimeout=%s",
+            user, password, host, port, database,
+            connTimeout, readTimeout, writeTimeout,
+        )
+    case "postgres":
+        // Parse connection timeout and fall back to a sensible default (30s) if parsing fails or yields 0
+        connTimeoutDur, err := time.ParseDuration(connTimeout)
+        connTimeoutSec := 30
+        if err == nil && connTimeoutDur.Seconds() > 0 {
+            connTimeoutSec = int(connTimeoutDur.Seconds())
+        }
+        // Parse read timeout for statement_timeout (PostgreSQL uses milliseconds)
+        readTimeoutDur, err := time.ParseDuration(readTimeout)
+        statementTimeoutMs := 60000
+        if err == nil && readTimeoutDur.Milliseconds() > 0 {
+            statementTimeoutMs = int(readTimeoutDur.Milliseconds())
+        }
 
-		return fmt.Sprintf(
-			"host=%s port=%s user=%s password=%s dbname=%s sslmode=require connect_timeout=%d",
-			host, port, user, password, database, connTimeoutSec,
-		)
-	default:
-		return fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-			user, password, host, port, database,
-		)
-	}
+        return fmt.Sprintf(
+            "host=%s port=%s user=%s password=%s dbname=%s sslmode=require connect_timeout=%d statement_timeout=%d",
+            host, port, user, password, database, connTimeoutSec, statementTimeoutMs,
+        )
+    default:
+        return fmt.Sprintf(
+            "%s:%s@tcp(%s:%s)/%s?parseTime=true",
+            user, password, host, port, database,
+        )
+    }
 }
 
 // getEnv retrieves the value of the environment variable for the given key.
