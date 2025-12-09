@@ -76,11 +76,8 @@ func InferSchemaFromDatabase(db *sql.DB, dbType string, query string, logger *za
 
 	inferrer, exists := schemaInferrers[key]
 	if !exists {
-		logger.Warn("Unknown database type, defaulting to MySQL inference",
-			zap.String("provided_type", dbType),
-			zap.String("default_type", "mysql"))
-
-		return InferSchemaFromMySQL(db, query, logger)
+		// Fail fast on unknown database types to prevent silent misconfiguration
+		return nil, fmt.Errorf("unsupported database type for schema inference: %s", dbType)
 	}
 
 	return inferrer(db, query, logger)
@@ -94,10 +91,8 @@ func mysqlTypeToBigQueryType(mysqlType string, logger *zap.Logger) bigquery.Fiel
 		return bigquery.StringFieldType
 	case "INT", "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT", "INTEGER":
 		return bigquery.IntegerFieldType
-	case "FLOAT", "DOUBLE", "REAL":
+	case "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC", "REAL":
 		return bigquery.FloatFieldType
-	case "DECIMAL", "NUMERIC":
-		return bigquery.NumericFieldType
 	case "DATE":
 		return bigquery.DateFieldType
 	case "TIME":
@@ -128,10 +123,8 @@ func postgresTypeToBigQueryType(pgType string, logger *zap.Logger) bigquery.Fiel
 		return bigquery.StringFieldType
 	case "INT", "INT2", "INT4", "INT8", "INTEGER", "SMALLINT", "BIGINT", "SERIAL", "BIGSERIAL", "SMALLSERIAL":
 		return bigquery.IntegerFieldType
-	case "FLOAT", "FLOAT4", "FLOAT8", "DOUBLE", "DOUBLE PRECISION", "REAL":
+	case "FLOAT", "FLOAT4", "FLOAT8", "DOUBLE", "DOUBLE PRECISION", "DECIMAL", "NUMERIC", "REAL", "MONEY":
 		return bigquery.FloatFieldType
-	case "DECIMAL", "NUMERIC", "MONEY":
-		return bigquery.NumericFieldType
 	case "DATE":
 		return bigquery.DateFieldType
 	case "TIME", "TIMETZ", "TIME WITH TIME ZONE", "TIME WITHOUT TIME ZONE":
@@ -275,6 +268,7 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 		return fmt.Errorf("failed to get table metadata for '%s': %w", table.Name, err)
 	}
 
+	// Table exists, check if schema matches
 	if !model.SchemasMatch(metadata.Schema, table.Schema, logger) {
 		logger.Warn("Schema mismatch detected, attempting update",
 			zap.String("table", table.Name),
@@ -285,6 +279,7 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 		_, updateErr := tableRef.Update(ctx, update, metadata.ETag)
 
 		if updateErr != nil {
+			// Check for critical schema errors that require table recreation
 			isCriticalError := (strings.Contains(updateErr.Error(), "changed type") ||
 				strings.Contains(updateErr.Error(), "is missing") ||
 				strings.Contains(updateErr.Error(), "Precondition")) &&
@@ -299,11 +294,13 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 				logger.Warn("WARNING: Recreating table will DELETE ALL EXISTING DATA",
 					zap.String("table", table.Name))
 
+				// Delete existing table
 				if delErr := tableRef.Delete(ctx); delErr != nil {
 					return fmt.Errorf("failed to delete table '%s' with bad schema: %w", table.Name, delErr)
 				}
 				logger.Info("Table deleted", zap.String("table", table.Name))
 
+				// Recreate table with new schema
 				if createErr := tableRef.Create(ctx, &bigquery.TableMetadata{
 					Name:   table.Name,
 					Schema: table.Schema,
