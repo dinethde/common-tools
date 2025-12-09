@@ -53,23 +53,37 @@ func validateBigQueryIdentifier(identifier string, identifierType string) error 
 	return nil
 }
 
+// SchemaInferrer defines the function signature for database-specific schema inference.
+type SchemaInferrer func(*sql.DB, string, *zap.Logger) (bigquery.Schema, error)
+
+// schemaInferrers is a registry mapping database types to their inference functions.
+// This allows for easy extension without modifying the main InferSchemaFromDatabase function.
+var schemaInferrers = map[string]SchemaInferrer{
+	"mysql":    InferSchemaFromMySQL,
+	"postgres": InferSchemaFromPostgres,
+	// Future: "mssql": InferSchemaFromMSSQL,
+}
+
 // InferSchemaFromDatabase infers a BigQuery schema from a SQL database query.
-// Supports MySQL and PostgreSQL database types.
+// It uses a map-based strategy to select the correct inference logic based on dbType.
 func InferSchemaFromDatabase(db *sql.DB, dbType string, query string, logger *zap.Logger) (bigquery.Schema, error) {
 	logger.Debug("Inferring schema from database",
 		zap.String("db_type", dbType),
 		zap.String("query", query))
 
-	switch dbType {
-	case "mysql":
-		return InferSchemaFromMySQL(db, query, logger)
-	case "postgres":
-		return InferSchemaFromPostgres(db, query, logger)
-	default:
+	// Normalize key to lower case to ensure case-insensitive lookup
+	key := strings.ToLower(dbType)
+
+	inferrer, exists := schemaInferrers[key]
+	if !exists {
 		logger.Warn("Unknown database type, defaulting to MySQL inference",
-			zap.String("db_type", dbType))
+			zap.String("provided_type", dbType),
+			zap.String("default_type", "mysql"))
+
 		return InferSchemaFromMySQL(db, query, logger)
 	}
+
+	return inferrer(db, query, logger)
 }
 
 // mysqlTypeToBigQueryType maps common MySQL database types to BigQuery types.
@@ -233,7 +247,6 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 	metadata, err := tableRef.Metadata(ctx)
 
 	if err != nil {
-		// Check if table doesn't exist
 		if strings.Contains(err.Error(), "Not found") || strings.Contains(err.Error(), "notFound") {
 			logger.Info("Table not found, creating new table",
 				zap.String("table", table.Name),
@@ -254,7 +267,6 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 		return fmt.Errorf("failed to get table metadata for '%s': %w", table.Name, err)
 	}
 
-	// Table exists, check if schema matches
 	if !model.SchemasMatch(metadata.Schema, table.Schema, logger) {
 		logger.Warn("Schema mismatch detected, attempting update",
 			zap.String("table", table.Name),
@@ -265,7 +277,6 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 		_, updateErr := tableRef.Update(ctx, update, metadata.ETag)
 
 		if updateErr != nil {
-			// Check for critical schema errors that require table recreation
 			isCriticalError := (strings.Contains(updateErr.Error(), "changed type") ||
 				strings.Contains(updateErr.Error(), "is missing") ||
 				strings.Contains(updateErr.Error(), "Precondition")) &&
@@ -280,13 +291,11 @@ func createOrUpdateTable(ctx context.Context, client *bigquery.Client, datasetID
 				logger.Warn("WARNING: Recreating table will DELETE ALL EXISTING DATA",
 					zap.String("table", table.Name))
 
-				// Delete existing table
 				if delErr := tableRef.Delete(ctx); delErr != nil {
 					return fmt.Errorf("failed to delete table '%s' with bad schema: %w", table.Name, delErr)
 				}
 				logger.Info("Table deleted", zap.String("table", table.Name))
 
-				// Recreate table with new schema
 				if createErr := tableRef.Create(ctx, &bigquery.TableMetadata{
 					Name:   table.Name,
 					Schema: table.Schema,
