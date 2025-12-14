@@ -265,32 +265,61 @@ func runTableJob(ctx context.Context, bqClient *bigquery.Client, cfg *model.Conf
 }
 
 // buildSourceQuery constructs the SQL query for extracting data from the source table.
+// buildSourceQuery constructs the SQL query for extracting data from the source table.
+//
+// Design note:
+//   - For MySQL, DatabaseName represents the database and queries are generated as: database.table
+//   - For PostgreSQL, DatabaseName represents the schema and queries are generated as: schema.table
+//
+// PostgreSQL connections are always made to a single database via the connection string.
+// Schema selection is handled explicitly at the query level.
 func buildSourceQuery(dbConfig *model.DatabaseConfig, tableConfig *model.TableConfig) (string, error) {
-	// Validate identifiers to prevent SQL injection
-	if err := validateSQLIdentifier(dbConfig.DatabaseName); err != nil {
-		return "", fmt.Errorf("invalid database name: %w", err)
-	}
 	if err := validateSQLIdentifier(tableConfig.Name); err != nil {
 		return "", fmt.Errorf("invalid table name: %w", err)
 	}
 
 	columns := "*"
-
 	if len(tableConfig.Columns) > 0 {
 		for _, col := range tableConfig.Columns {
 			if err := validateSQLIdentifier(col); err != nil {
 				return "", fmt.Errorf("invalid column name: %w", err)
 			}
 		}
-
 		columns = strings.Join(tableConfig.Columns, ", ")
 	}
 
-	return fmt.Sprintf("SELECT %s FROM %s.%s",
-		columns,
-		dbConfig.DatabaseName,
-		tableConfig.Name,
-	), nil
+	dbType := strings.ToLower(dbConfig.Type)
+
+	switch dbType {
+	case "postgres":
+		// In PostgreSQL, DatabaseName is treated as the schema name
+		if dbConfig.DatabaseName == "" {
+			return "", fmt.Errorf("schema (DatabaseName) must be set for PostgreSQL")
+		}
+		if err := validateSQLIdentifier(dbConfig.DatabaseName); err != nil {
+			return "", fmt.Errorf("invalid schema name: %w", err)
+		}
+
+		return fmt.Sprintf(
+			"SELECT %s FROM %s.%s",
+			columns,
+			dbConfig.DatabaseName,
+			tableConfig.Name,
+		), nil
+
+	default:
+		// MySQL and others: DatabaseName represents the database
+		if err := validateSQLIdentifier(dbConfig.DatabaseName); err != nil {
+			return "", fmt.Errorf("invalid database name: %w", err)
+		}
+
+		return fmt.Sprintf(
+			"SELECT %s FROM %s.%s",
+			columns,
+			dbConfig.DatabaseName,
+			tableConfig.Name,
+		), nil
+	}
 }
 
 var validSQLIdentifier = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)

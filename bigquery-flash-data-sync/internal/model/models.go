@@ -60,7 +60,7 @@ type DatabaseConfig struct {
 	Type             string
 	Host             string
 	Port             string
-	DatabaseName     string
+	DatabaseName     string // MySQL: database name | PostgreSQL: schema name (database is selected via connection string)
 	User             string
 	ConnectionString string
 	Tables           map[string]*TableConfig
