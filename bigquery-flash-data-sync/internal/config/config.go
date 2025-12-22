@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	DatabasesKey = "SYNC_DATABASES"
+	Database = "SYNC_DATABASES"
 
 	DefaultDBHost     = "DB_HOST"
 	DefaultDBPort     = "DB_PORT"
@@ -43,14 +43,14 @@ const (
 	GCPProjectID = "GCP_PROJECT_ID"
 	BQDatasetID  = "BQ_DATASET_ID"
 
-	SyncTimeoutKey      = "SYNC_TIMEOUT"
-	DateFormatKey       = "DATE_FORMAT"
-	DefaultBatchSizeKey = "DEFAULT_BATCH_SIZE"
+	SyncTimeout     = "SYNC_TIMEOUT"
+	DateFormat      = "DATE_FORMAT"
+	DefaultBatchSize = "DEFAULT_BATCH_SIZE"
 
-	DryRunKey              = "DRY_RUN"
-	CreateTablesKey        = "AUTO_CREATE_TABLES"
-	TruncateOnSyncKey      = "TRUNCATE_ON_SYNC"
-	MaxRowParseFailuresKey = "MAX_ROW_PARSE_FAILURES"
+	DryRun              = "DRY_RUN"
+	CreateTables        = "AUTO_CREATE_TABLES"
+	TruncateOnSync    = "TRUNCATE_ON_SYNC"
+	MaxRowParseFailures = "MAX_ROW_PARSE_FAILURES"
 )
 
 // LoadConfig reads all required environment variables and builds database connection strings.
@@ -64,7 +64,7 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 		return nil, fmt.Errorf("GCP_PROJECT_ID and BQ_DATASET_ID are required")
 	}
 
-	dbNames := getEnv(DatabasesKey, "")
+	dbNames := getEnv(Database, "")
 	if dbNames == "" {
 		return nil, fmt.Errorf("SYNC_DATABASES is required (comma-separated list of database identifiers)")
 	}
@@ -89,17 +89,17 @@ func LoadConfig(logger *zap.Logger) (*model.Config, error) {
 
 	maxOpen := parseInt(logger, DBMaxOpenConns, "10", 10)
 	maxIdle := parseInt(logger, DBMaxIdleConns, "10", 10)
-	defaultBatchSize := parseInt(logger, DefaultBatchSizeKey, "1000", 1000)
-	maxRowParseFailures := parseInt(logger, MaxRowParseFailuresKey, "100", 100)
+	defaultBatchSize := parseInt(logger, DefaultBatchSize, "1000", 1000)
+	maxRowParseFailures := parseInt(logger, MaxRowParseFailures, "100", 100)
 
-	syncTimeout := parseDuration(logger, SyncTimeoutKey, "10m", 10*time.Minute)
+	syncTimeout := parseDuration(logger, SyncTimeout, "10m", 10*time.Minute)
 	connMaxLifetime := parseDuration(logger, DBConnMaxLifetime, "1m", 1*time.Minute)
 
-	dateFormat := getEnv(DateFormatKey, "2006-01-02T15:04:05Z07:00")
+	dateFormat := getEnv(DateFormat, "2006-01-02T15:04:05Z07:00")
 
-	dryRun := parseBool(getEnv(DryRunKey, "false"))
-	createTables := parseBool(getEnv(CreateTablesKey, "true"))
-	truncateOnSync := parseBool(getEnv(TruncateOnSyncKey, "false"))
+	dryRun := parseBool(getEnv(DryRun, "false"))
+	createTables := parseBool(getEnv(CreateTables, "true"))
+	truncateOnSync := parseBool(getEnv(TruncateOnSync, "false"))
 
 	cfg := &model.Config{
 		GCPProjectID:        gcpProjectID,
