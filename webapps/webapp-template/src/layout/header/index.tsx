@@ -29,7 +29,8 @@ const Header = () => {
   const authContext = useAppAuthContext();
   const theme = useTheme();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const user = useAppSelector((state: RootState) => state.user);
+
+  const user = useAppSelector((state: RootState) => state.user).userInfo;
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -43,7 +44,7 @@ const Header = () => {
     <Box
       sx={{
         zIndex: 10,
-        backgroundColor: theme.palette.surface.territory.active,
+        backgroundColor: theme.palette.surface.secondary.active,
         boxShadow: theme.shadows[4],
       }}
     >
@@ -90,7 +91,7 @@ const Header = () => {
         </Box>
 
         <Box sx={{ flexGrow: 0 }}>
-          {user.userInfo && (
+          {user && (
             <>
               <Stack flexDirection={"row"} alignItems={"center"} gap={1}>
                 <Tooltip title="Open settings">
@@ -102,10 +103,10 @@ const Header = () => {
                       border: 1,
                       borderColor: theme.palette.customBorder.territory.active,
                     }}
-                    src={user.userInfo?.employeeThumbnail || ""}
-                    alt={user.userInfo?.firstName || "Avatar"}
+                    src={user.employeeThumbnail || ""}
+                    alt={user.firstName || "Avatar"}
                   >
-                    {user.userInfo?.firstName?.charAt(0)}
+                    {user.firstName?.charAt(0)}
                   </Avatar>
                 </Tooltip>
                 <Box sx={{ width: "fit-content" }}>
@@ -116,7 +117,7 @@ const Header = () => {
                       color: theme.palette.customText.primary.p2.active,
                     }}
                   >
-                    {user.userInfo?.firstName + " " + user.userInfo.lastName}
+                    {[user.firstName, user.lastName].filter(Boolean).join(" ")}
                   </Typography>
                   <Typography
                     noWrap
@@ -125,7 +126,7 @@ const Header = () => {
                       color: theme.palette.customText.primary.p3.active,
                     }}
                   >
-                    {user.userInfo?.jobRole}
+                    {user.jobRole}
                   </Typography>
                 </Box>
               </Stack>
