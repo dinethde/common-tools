@@ -95,8 +95,6 @@ export const getActiveRoutesV2 = (
   if (!routes) return [];
   const routesObj: RouteObjectWithRole[] = [];
   routes.forEach((routeObj) => {
-    if (!routeObj.element) return;
-
     if (isIncludedRole(roles, routeObj.allowRoles)) {
       routesObj.push({
         ...routeObj,
