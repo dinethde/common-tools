@@ -16,6 +16,7 @@
 import { Avatar, Box, Menu, MenuItem, Stack, Tooltip, useTheme } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { userApi } from "@services/user.api";
 
 import React from "react";
 
@@ -23,14 +24,14 @@ import Wso2Logo from "@assets/images/wso2-logo.svg";
 import { APP_NAME } from "@config/config";
 import { useAppAuthContext } from "@context/AuthContext";
 import BasicBreadcrumbs from "@layout/BreadCrumbs/BreadCrumbs";
-import { RootState, useAppSelector } from "@slices/store";
+import { useAppSelector } from "@slices/store";
 
 const Header = () => {
   const authContext = useAppAuthContext();
   const theme = useTheme();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
-  const user = useAppSelector((state: RootState) => state.user).userInfo;
+  const user = useAppSelector((state) => userApi.endpoints.getUserInfo.select()(state)?.data);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
