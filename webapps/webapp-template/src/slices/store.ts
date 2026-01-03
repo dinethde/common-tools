@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 import { configureStore } from "@reduxjs/toolkit";
-import { configApi } from "@services/config.api";
 import { enableMapSet } from "immer";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
-import { userApi } from "@root/src/services/user.api";
+import { collectionApi } from "@services/collections.api";
+import { configApi } from "@services/config.api";
+import { userApi } from "@services/user.api";
 import authReducer from "@slices/authSlice/auth";
 import collectionReducer from "@slices/collections/collection";
 import commonReducer from "@slices/commonSlice/common";
@@ -33,9 +34,13 @@ export const store = configureStore({
 
     [userApi.reducerPath]: userApi.reducer,
     [configApi.reducerPath]: configApi.reducer,
+    [collectionApi.reducerPath]: collectionApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(userApi.middleware).concat(configApi.middleware),
+    getDefaultMiddleware()
+      .concat(userApi.middleware)
+      .concat(configApi.middleware)
+      .concat(collectionApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
