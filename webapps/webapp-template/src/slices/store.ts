@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import { configureStore } from "@reduxjs/toolkit";
+import { configApi } from "@services/config.api";
 import { enableMapSet } from "immer";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
@@ -31,8 +32,10 @@ export const store = configureStore({
     collection: collectionReducer,
 
     [userApi.reducerPath]: userApi.reducer,
+    [configApi.reducerPath]: configApi.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(userApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(userApi.middleware).concat(configApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
