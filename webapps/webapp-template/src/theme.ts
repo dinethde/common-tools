@@ -764,6 +764,25 @@ export const themeSettings = (mode: PaletteMode) => {
           },
         },
       },
+      MuiTooltip: {
+        defaultProps: {
+          arrow: true,
+          placement: "right",
+        },
+        styleOverrides: {
+          tooltip: {
+            backgroundColor: colors.neutral["1700"],
+            color: colors.neutral.white,
+            padding: "6px 8px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.16), 0px 0px 2px rgba(0, 0, 0, 0.08)",
+          },
+          arrow: {
+            color: colors.neutral["1700"],
+          },
+        },
+      },
     },
     breakpoints: {
       values: {
