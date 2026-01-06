@@ -62,7 +62,6 @@ export const routes: RouteObjectWithRole[] = [
       },
     ],
   },
-
   {
     path: "/page-two",
     text: "Page 2",
@@ -117,27 +116,4 @@ export const getActiveRouteDetails = (roles: string[]): RouteDetail[] => {
     }
   });
   return routesObj;
-};
-
-interface getActiveParentRoutesProps {
-  routes: RouteObjectWithRole[] | undefined;
-  roles: string[];
-}
-
-export const getActiveParentRoutes = ({ routes, roles }: getActiveParentRoutesProps): string[] => {
-  if (!routes) return [];
-
-  let activeParentPaths: string[] = [];
-
-  routes.forEach((routeObj) => {
-    if (!routeObj.element) return;
-
-    if (isIncludedRole(roles, routeObj.allowRoles)) {
-      if (routeObj.path) {
-        activeParentPaths.push(routeObj.path);
-      }
-    }
-  });
-
-  return activeParentPaths;
 };
