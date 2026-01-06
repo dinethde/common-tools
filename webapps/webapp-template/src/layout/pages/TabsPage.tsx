@@ -59,6 +59,9 @@ export default function TabsPage({ tabsPage }: TabsPageProps) {
       sx={{
         height: "100%",
         transition: "color 200ms",
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
       }}
     >
       {/* Tab Navigation */}
@@ -186,7 +189,17 @@ export function TabPanel(props: TabPanelProps) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
-      sx={{ p: 4 }}
+      sx={{
+        maxHeight: "calc(100vh - 150px)",
+        overflowY: "auto",
+        // Hide scrollbar for Chrome, Safari and Opera
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+        // Hide scrollbar for IE, Edge and Firefox
+        msOverflowStyle: "none",
+        scrollbarWidth: "none",
+      }}
     >
       <Box
         component={motion.div}
