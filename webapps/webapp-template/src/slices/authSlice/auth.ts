@@ -15,12 +15,12 @@
 // under the License.
 import { BasicUserInfo, DecodedIDTokenPayload } from "@asgardeo/auth-spa";
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { UserInfoInterface, userApi } from "@services/user.api";
 
 import { State } from "@/types/types";
 import { PRIVILEGE_ADMIN, PRIVILEGE_EMPLOYEE, SnackMessage } from "@config/constant";
+import { UserInfoInterface, userApi } from "@services/user.api";
 import { enqueueSnackbarMessage } from "@slices/commonSlice/common";
-import { RootState } from "@slices/store";
+import type { RootState } from "@slices/store";
 
 export enum Role {
   ADMIN = "ADMIN",
