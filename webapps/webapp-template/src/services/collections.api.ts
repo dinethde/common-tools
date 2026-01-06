@@ -36,8 +36,8 @@ export const collectionApi = createApi({
         url: AppConfig.serviceUrls.collections,
         method: "POST",
         body: payload,
-        invalidatesTags: ["Collections"],
       }),
+      invalidatesTags: ["Collections"],
     }),
   }),
 });
