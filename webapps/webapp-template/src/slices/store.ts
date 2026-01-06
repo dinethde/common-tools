@@ -21,7 +21,6 @@ import { collectionApi } from "@services/collections.api";
 import { configApi } from "@services/config.api";
 import { userApi } from "@services/user.api";
 import authReducer from "@slices/authSlice/auth";
-import collectionReducer from "@slices/collections/collection";
 import commonReducer from "@slices/commonSlice/common";
 
 enableMapSet();
@@ -30,7 +29,6 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     common: commonReducer,
-    collection: collectionReducer,
 
     [userApi.reducerPath]: userApi.reducer,
     [configApi.reducerPath]: configApi.reducer,
