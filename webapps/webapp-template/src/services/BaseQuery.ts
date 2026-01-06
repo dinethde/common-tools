@@ -65,6 +65,7 @@ export const baseQueryWithReauth: BaseQueryFn<
         }
       } catch (error) {
         console.error("Error refreshing token:", error);
+        LOGOUT_CALLBACK();
       } finally {
         release();
       }
