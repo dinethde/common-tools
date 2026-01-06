@@ -47,7 +47,7 @@ export default function BasicBreadcrumbs() {
   );
 
   const buildRouteTo = (index: number) => {
-    return pathnames.slice(0, index + 1).join("/");
+    return "/" + pathnames.slice(1, index + 1).join("/");
   };
 
   const renderBreadcrumbItem = (path: string, index: number) => {
@@ -58,6 +58,12 @@ export default function BasicBreadcrumbs() {
 
     const label = createLabel(path, shouldTruncate);
 
+    const breadcrumbLink = (
+      <Box component={Link} to={routeTo} sx={styles.breadcrumbItem}>
+        {label}
+      </Box>
+    );
+
     if (isLast) {
       return (
         <Box key={`breadcrumb-${index}`} sx={styles.breadcrumbItem}>
@@ -65,12 +71,6 @@ export default function BasicBreadcrumbs() {
         </Box>
       );
     }
-
-    const breadcrumbLink = (
-      <Box component={Link} to={routeTo} sx={styles.breadcrumbItem}>
-        {label}
-      </Box>
-    );
 
     if (shouldTruncate) {
       return (
