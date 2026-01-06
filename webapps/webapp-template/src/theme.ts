@@ -477,10 +477,10 @@ declare module "@mui/material/styles" {
       primary_light?: Record<string, string>;
       primary_dark?: Record<string, string>;
       secondary?: Record<string, string>;
-      secondary_light: Record<string, string>;
+      secondary_light?: Record<string, string>;
       neutral_light?: Record<string, string>;
       neutral_dark?: Record<string, string>;
-      xmas: Record<string, string>;
+      xmas?: Record<string, string>;
     };
     shadow?: {
       primary?: Record<string, string>;
@@ -492,9 +492,9 @@ declare module "@mui/material/styles" {
         p3?: { active: string; hover: string };
         p4?: { active: string; hover: string };
       };
-      secondary: {
-        p1: { active: string; hover: string; disabled?: string };
-        p2: { active: string; hover: string; disabled?: string };
+      secondary?: {
+        p1?: { active: string; hover: string; disabled?: string };
+        p2?: { active: string; hover: string; disabled?: string };
       };
       brand?: {
         p1?: { active: string; hover: string; disabled?: string };
@@ -526,7 +526,7 @@ export const themeSettings = (mode: PaletteMode) => {
       },
       error: {
         main: "#F23B0D",
-        light: "#FF704D ",
+        light: "#FF704D",
         dark: "#BD1C0F",
       },
       warning: {
