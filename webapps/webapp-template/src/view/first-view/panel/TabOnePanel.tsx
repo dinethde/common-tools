@@ -22,8 +22,6 @@ import { useState } from "react";
 import ErrorHandler from "@component/common/ErrorHandler";
 import PreLoader from "@component/common/PreLoader";
 import { useGetCollectionsQuery } from "@services/collections.api";
-import { enqueueSnackbarMessage } from "@slices/commonSlice/common";
-import { useAppDispatch } from "@slices/store";
 import PanelOneToolBar from "@view/first-view/tool-bar/PanelOneToolbar";
 
 import DataCard from "../component/card/CommonCard";
@@ -31,7 +29,6 @@ import AddCollectionModal from "../component/modal/AddCollectionModal";
 
 const TabOnePanel = () => {
   const [showAddCollectionPopUp, setShowAddCollectionPopUp] = useState(false);
-  const dispatch = useAppDispatch();
 
   const { data, error, isLoading } = useGetCollectionsQuery();
 
@@ -46,25 +43,12 @@ const TabOnePanel = () => {
   }
 
   if (error) {
-    dispatch(
-      enqueueSnackbarMessage({
-        message: "Error while retrieving collections",
-        type: "success",
-      }),
-    );
     return <ErrorHandler message={"Error while retrieving collections"} />;
   }
 
   if (!data || count === 0) {
     return <ErrorHandler message={"No data"} />;
   }
-
-  dispatch(
-    enqueueSnackbarMessage({
-      message: "Successfully retrieved collections",
-      type: "success",
-    }),
-  );
 
   return (
     <>
