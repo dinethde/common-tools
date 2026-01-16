@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import AppHandler from "@app/AppHandler";
-import { AuthProvider } from "@asgardeo/auth-react";
+import { AsgardeoProvider } from "@asgardeo/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { SnackbarProvider } from "notistack";
 import { Provider } from "react-redux";
@@ -23,8 +23,8 @@ import { createContext, useEffect, useMemo, useState } from "react";
 
 import { APP_NAME, AsgardeoConfig } from "@config/config";
 import AppAuthProvider from "@context/AuthContext";
-import { store } from "@slices/store";
 import { themeSettings } from "@root/src/theme";
+import { store } from "@slices/store";
 import { ThemeMode } from "@utils/types";
 
 import "./index.css";
@@ -82,11 +82,11 @@ function App() {
       <SnackbarProvider maxSnack={3} preventDuplicate>
         <ThemeProvider theme={theme}>
           <Provider store={store}>
-            <AuthProvider config={AsgardeoConfig}>
+            <AsgardeoProvider {...AsgardeoConfig}>
               <AppAuthProvider>
                 <AppHandler />
               </AppAuthProvider>
-            </AuthProvider>
+            </AsgardeoProvider>
           </Provider>
         </ThemeProvider>
       </SnackbarProvider>
