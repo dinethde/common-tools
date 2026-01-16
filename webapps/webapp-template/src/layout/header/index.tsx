@@ -16,7 +16,6 @@
 import { Avatar, Box, Menu, MenuItem, Stack, Tooltip, useTheme } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { userApi } from "@services/user.api";
 
 import React from "react";
 
@@ -24,6 +23,7 @@ import Wso2Logo from "@assets/images/wso2-logo.svg";
 import { APP_NAME } from "@config/config";
 import { useAppAuthContext } from "@context/AuthContext";
 import BasicBreadcrumbs from "@layout/BreadCrumbs/BreadCrumbs";
+import { userApi } from "@services/user.api";
 import { useAppSelector } from "@slices/store";
 
 const Header = () => {
