@@ -54,11 +54,10 @@ public isolated function cleanUpUsername(string username) returns string {
 # 
 # + idToken - The ID token for authentication
 # + return - CustomJwtPayload containing user data or an error
-public isolated function getUserData(string idToken) returns CustomJwtPayload|error {
+public isolated function getUserDataFromAsgardeo(string idToken) returns CustomJwtPayload|error {
     
     // Client to make the skim call
     http:Client|error skimClient = new ("https://api.asgardeo.io/t/wso2");
-
     if skimClient is error {
         log:printError("Failed to create SCIM client", skimClient);
         return error("Failed to create SCIM client");
@@ -88,8 +87,6 @@ public isolated function getUserData(string idToken) returns CustomJwtPayload|er
         log:printError(errorMsg, body);
         return error(errorMsg);
     }
-
-    log:printInfo("Body info : ", body = body);
 
     // Clone the body to ScimUserInfo record type
     ScimUserInfo|error scimUserInfo = body.cloneWithType(ScimUserInfo);

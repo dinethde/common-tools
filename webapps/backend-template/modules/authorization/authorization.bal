@@ -44,7 +44,7 @@ public isolated service class JwtInterceptor {
             return <http:InternalServerError>{body: {message: errorMsg}};
         }
 
-        CustomJwtPayload|error payload = getUserData(idToken);
+        CustomJwtPayload|error payload = getUserDataFromAsgardeo(idToken);
 
         if payload is error {
             return <http:InternalServerError> {
