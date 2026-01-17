@@ -49,3 +49,63 @@ public isolated function cleanUpRoles(Groups[] groups) returns string[] {
 public isolated function cleanUpUsername(string username) returns string {
     return username.startsWith("DEFAULT/") ? username.substring(8) : username;
 }
+
+# Retrieve user data from the asgardeo.
+# 
+# + idToken - The ID token for authentication
+# + return - CustomJwtPayload containing user data or an error
+public isolated function getUserData(string idToken) returns CustomJwtPayload|error {
+    
+    // Client to make the skim call
+    http:Client|error skimClient = new ("https://api.asgardeo.io/t/wso2");
+
+    if skimClient is error {
+        log:printError("Failed to create SCIM client", skimClient);
+        return error("Failed to create SCIM client");
+    }
+
+    http:Response|error resp = skimClient->get("/scim2/Me", {
+        "Authorization": "Bearer " + idToken,
+        "Accept": "application/json"
+    });
+
+    if resp is error {
+        log:printError("Failed to retrieve user info from SCIM API", resp);
+        return error ("Failed to retrieve user info from SCIM API");
+    }
+
+    // Checking the status code of the response
+    if resp.statusCode != 200 {
+        string errorMsg = string `UserInfo retrieval failed with status code: ${resp.statusCode}`;
+        log:printError(errorMsg);
+        return error(errorMsg);
+    }
+
+    // Get payload in the body as JSON
+    json|error body =  resp.getJsonPayload();
+    if body is error {
+        string errorMsg = "Failed to parse body from the response";
+        log:printError(errorMsg, body);
+        return error(errorMsg);
+    }
+
+    log:printInfo("Body info : ", body = body);
+
+    // Clone the body to ScimUserInfo record type
+    ScimUserInfo|error scimUserInfo = body.cloneWithType(ScimUserInfo);
+    if scimUserInfo is error {
+        string errorMsg = "Failed to parse user info from body";
+        log:printError(errorMsg, scimUserInfo);
+        return error(errorMsg);
+    }
+
+    Groups[] groups = scimUserInfo.groups;
+
+    // Creating CustomJwtPayload with user info
+    CustomJwtPayload payload = {
+        email: cleanUpUsername(scimUserInfo.userName),
+        groups: cleanUpRoles(groups)
+    };
+
+    return payload;
+}
