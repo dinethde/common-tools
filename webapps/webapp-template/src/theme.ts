@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -295,7 +295,7 @@ export const tokens = (mode: PaletteMode) => {
               disabled: "#00CEFF96",
             },
             secondary_light: {
-              active: colors.secondary["200"],
+              active: colors.secondary["100"],
               hover: "#FFFFFF",
             },
             neutral_light: {
@@ -787,7 +787,7 @@ export const themeSettings = (mode: PaletteMode) => {
     breakpoints: {
       values: {
         xs: 0,
-        sm: 600,
+        sm: 700,
         md: 960,
         lg: 1280,
         xl: 1920,
