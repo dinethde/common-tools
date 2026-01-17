@@ -13,8 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/http;
+import ballerina/log;
 
-#
+# Check if the user has necessary permissions.
+# 
 # + requiredRoles - Required Role list
 # + userRoles - Roles list, The user has
 # + return - Allow or not
@@ -25,4 +28,24 @@ public isolated function checkPermissions(string[] requiredRoles, string[] userR
 
     final string[] & readonly userRolesReadOnly = userRoles.cloneReadOnly();
     return requiredRoles.every(role => userRolesReadOnly.indexOf(role) !is ());
+}
+
+# Clean up prefixes in the groups.
+# 
+# + groups - Array of Groups to clean up
+# + return - Array of cleaned role display names
+public isolated function cleanUpRoles(Groups[] groups) returns string[] {
+        return groups.map(r => 
+            r.display.startsWith("DEFAULT/") 
+                ? r.display.substring(8) 
+                : r.display
+        );
+}
+
+# Clean prefix in the username.
+# 
+# + username - The username to clean up
+# + return - The cleaned username with "DEFAULT/" prefix removed if present
+public isolated function cleanUpUsername(string username) returns string {
+    return username.startsWith("DEFAULT/") ? username.substring(8) : username;
 }
