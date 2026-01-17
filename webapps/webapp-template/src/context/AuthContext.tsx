@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { useAsgardeo } from "@asgardeo/react";
+import { http, useAsgardeo } from "@asgardeo/react";
 import { useIdleTimer } from "react-idle-timer";
 
 import React, { useContext, useEffect, useState } from "react";
@@ -100,8 +100,6 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
         decodedIdToken: decodedIdToken,
       }),
     );
-
-    console.log("decoded id token : ", decodedIdToken);
 
     setTokens(accessToken, refreshToken, appSignOut);
     await triggerGetUserInfo();
@@ -211,31 +209,3 @@ const useAppAuthContext = (): AuthContextType => useContext(AuthContext);
 export { useAppAuthContext };
 
 export default AppAuthProvider;
-
-/*
-
-{
-    "isk": "32a2f8c16ffdefd72a2cd5db4161af3259c30674d0072bb6d119327cd9d368a2",
-    "at_hash": "F-9TqrEMc8_Za-u9jBzKjQ",
-    "sub": "6387963b-c0b4-4268-b77c-b27513d713b3",
-    "amr": [
-        "BasicAuthenticator",
-        "totp"
-    ],
-    "iss": "https://api.asgardeo.io/t/wso2/oauth2/token",
-    "sid": "f78f1157-7f90-4134-8c36-0888b0e484e3",
-    "c_hash": "pENd-U74V0e2ADpLJx-19g",
-    "aud": [
-        "WyZdatcRw0U0QJ4Wl22Wnx_lf7Ua",
-        "choreo:deployment:sandbox"
-    ],
-    "nbf": 1768578931,
-    "azp": "WyZdatcRw0U0QJ4Wl22Wnx_lf7Ua",
-    "org_id": "11737422-7078-8510-1074-820892631194",
-    "org_name": "wso2",
-    "exp": 1768582531,
-    "iat": 1768578931,
-    "jti": "4e06ad2e-6a28-45e1-8d47-70278d8a3e58",
-    "org_handle": "wso2"
-}
-*/
