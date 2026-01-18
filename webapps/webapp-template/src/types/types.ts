@@ -21,11 +21,11 @@ export type NavState = {
   expanded: number | null;
 };
 
-export enum State {
-  failed = "failed",
-  success = "success",
-  loading = "loading",
-  idle = "idle",
+export enum AppState {
+  Maintenance = "MAINTENANCE",
+  Failed = "FAILED",
+  Success = "SUCCESS",
+  Loading = "LOADING",
 }
 
 export enum Role {
