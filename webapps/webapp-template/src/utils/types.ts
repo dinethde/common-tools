@@ -13,21 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import { BasicUserInfo, DecodedIDTokenPayload } from "@asgardeo/auth-spa";
 
-import { Role } from "@slices/authSlice/auth";
-import { Collection } from "@slices/collections/collection";
-
-export interface AuthState {
-  status: State;
-  mode: "active" | "maintenance";
-  statusMessage: string | null;
-  isAuthenticated: boolean;
-  userInfo: BasicUserInfo | null;
-  decodedIdToken: DecodedIDTokenPayload | null;
-  roles: Role[];
-}
+import { Collection } from "@services/collections.api";
 
 export interface AuthData {
   userInfo: BasicUserInfo;
@@ -61,13 +49,6 @@ export interface PreLoaderProps {
 
 export interface ErrorHandlerProps {
   message: string | null;
-}
-
-export enum State {
-  failed = "failed",
-  success = "success",
-  loading = "loading",
-  idle = "idle",
 }
 
 export enum ConfirmationType {
