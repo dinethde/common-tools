@@ -112,7 +112,6 @@ export function Tabs({ tabs, activeIndex, handleTabClick }: TabToggleProps) {
           position: "relative",
           transition: "color 200ms",
           gap: 1,
-          px: 1,
         }}
         role="tablist"
         aria-orientation="horizontal"
@@ -153,7 +152,12 @@ export function Tabs({ tabs, activeIndex, handleTabClick }: TabToggleProps) {
               >
                 {React.cloneElement(tab.icon)}
               </Box>
-              <Typography variant={activeIndex === index ? "h6" : "body1"}>
+              <Typography
+                variant={activeIndex === index ? "body1" : "body1"}
+                sx={{
+                  color: activeIndex === index ? theme.palette.customText.brand.p1.active : "none",
+                }}
+              >
                 {tab.tabTitle}
               </Typography>
             </Button>
