@@ -28,6 +28,7 @@ import Typography from "@mui/material/Typography";
 
 import React from "react";
 
+import wso2LogoO from "@assets/images/wso2-logo-o.svg";
 import Wso2Logo from "@assets/images/wso2-logo.svg";
 import { APP_NAME } from "@config/config";
 import { useAppAuthContext } from "@context/AuthContext";
@@ -42,6 +43,8 @@ const Header = () => {
 
   const user = useAppSelector((state) => userApi.endpoints.getUserInfo.select()(state)?.data);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const logo = isMobile ? wso2LogoO : Wso2Logo;
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -66,18 +69,15 @@ const Header = () => {
           display: "flex",
           gap: 0.5,
           "&.MuiToolbar-root": {
-            pl: 0.3,
+            px: 1.5,
           },
         }}
       >
         <img
           alt="wso2"
-          style={{
-            height: "40px",
-            maxWidth: "100px",
-          }}
+          style={{ marginRight: isMobile ? "4px" : "8px" }}
           onClick={() => (window.location.href = "/")}
-          src={Wso2Logo}
+          src={logo}
         ></img>
 
         <Box
