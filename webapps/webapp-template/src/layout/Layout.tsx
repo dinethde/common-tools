@@ -139,7 +139,8 @@ export default function Layout() {
                 <Box
                   sx={{
                     flex: 1,
-                    padding: theme.spacing(3),
+                    padding: 2,
+                    paddingY: 2.5,
                     paddingBottom: isMobile ? "80px" : "18px",
                     overflowY: "auto",
                   }}
