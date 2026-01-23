@@ -19,7 +19,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { SnackbarProvider } from "notistack";
 import { Provider } from "react-redux";
 
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 
 import { APP_NAME, AsgardeoConfig } from "@config/config";
 import AppAuthProvider from "@context/AuthContext";
@@ -34,31 +34,28 @@ export const ColorModeContext = createContext({
   toggleColorMode: () => {},
 });
 
+const processLocalThemeMode = (): ThemeMode => {
+  try {
+    const savedTheme = localStorage.getItem("internal-app-theme");
+    if (savedTheme === ThemeMode.Light || savedTheme === ThemeMode.Dark) {
+      return savedTheme;
+    }
+
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const systemTheme = prefersDark ? ThemeMode.Dark : ThemeMode.Light;
+
+    localStorage.setItem("internal-app-theme", systemTheme);
+    return systemTheme;
+  } catch (err) {
+    console.error("Theme detection failed, defaulting to light mode.", err);
+    return ThemeMode.Light;
+  }
+};
+
 function App() {
   document.title = APP_NAME;
-  const processLocalThemeMode = (): ThemeMode => {
-    try {
-      const savedTheme = localStorage.getItem("internal-app-theme");
-      if (savedTheme === ThemeMode.Light || savedTheme === ThemeMode.Dark) {
-        return savedTheme;
-      }
-
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const systemTheme = prefersDark ? ThemeMode.Dark : ThemeMode.Light;
-
-      localStorage.setItem("internal-app-theme", systemTheme);
-      return systemTheme;
-    } catch (err) {
-      console.error("Theme detection failed, defaulting to light mode.", err);
-      return ThemeMode.Light;
-    }
-  };
 
   const [mode, setMode] = useState<ThemeMode>(processLocalThemeMode());
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", mode);
-  }, [mode]);
 
   const colorMode = useMemo(
     () => ({
@@ -68,8 +65,6 @@ function App() {
         localStorage.setItem("internal-app-theme", newMode);
         // Update state
         setMode(newMode);
-        // Apply the data-theme attribute to the document element
-        document.documentElement.setAttribute("data-theme", newMode);
       },
     }),
     [mode],
