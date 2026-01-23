@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { http, useAsgardeo } from "@asgardeo/react";
+import { useAsgardeo } from "@asgardeo/react";
 import { useIdleTimer } from "react-idle-timer";
 
 import React, { useContext, useEffect, useState } from "react";
@@ -102,7 +102,11 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
     );
 
     setTokens(accessToken, refreshToken, appSignOut);
-    await triggerGetUserInfo();
+    const userInfoResult = await triggerGetUserInfo();
+    if (userInfoResult?.isError) {
+      console.error("Failed to fetch user info:", userInfoResult.error);
+      dispatch(setAuthError());
+    }
 
     await dispatch(loadPrivileges());
   };
