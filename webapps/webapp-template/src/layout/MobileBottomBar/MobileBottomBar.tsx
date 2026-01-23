@@ -85,13 +85,6 @@ export default function MobileBottomBar({
               : "transparent",
             cursor: "pointer",
             transition: "background-color 0.2s ease",
-            "&:hover": {
-              backgroundColor: isHomePage
-                ? (theme.palette as any).fill?.primary_light?.hover || "rgba(252, 241, 232, 1)"
-                : theme.palette.mode === "light"
-                  ? "rgba(0, 0, 0, 0.04)"
-                  : "rgba(255, 255, 255, 0.05)",
-            },
           }}
         >
           <Home
