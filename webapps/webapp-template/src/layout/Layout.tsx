@@ -95,7 +95,8 @@ export default function Layout() {
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          backgroundColor: "rgba(0, 0, 0, 0.5)",
+                          backgroundColor:
+                            theme.palette.mode === "light" ? "rgba(0, 0, 0, 0.5)" : "transparent",
                           zIndex: 999,
                         }}
                       />
@@ -157,6 +158,7 @@ export default function Layout() {
                     onThemeToggle={colorMode.toggleColorMode}
                     open={open}
                     mode={colorMode.mode}
+                    roles={roles}
                   />
                 )}
               </Box>
