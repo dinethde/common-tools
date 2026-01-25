@@ -15,14 +15,13 @@
 // under the License.
 import { Box, Divider, Stack, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
-import { useLocation } from "react-router-dom";
 
 import { useMemo } from "react";
 
-import { RouteDetail } from "@/types/types";
 import SidebarNavItem from "@component/layout/SidebarNavItem";
 import pJson from "@root/package.json";
-import { getActiveRouteDetails } from "@src/route";
+import { useActiveRoute } from "@root/src/hooks/useActiveRoute";
+import { getAllowedRoutes } from "@src/route";
 
 interface SidebarProps {
   open: boolean;
@@ -34,29 +33,13 @@ interface SidebarProps {
 }
 
 const Sidebar = (props: SidebarProps) => {
-  const allRoutes = useMemo(() => getActiveRouteDetails(props.roles), [props.roles]);
-  const path = useLocation();
-
   const { mode, onThemeToggle } = props;
 
+  const allRoutes = useMemo(() => getAllowedRoutes(props.roles), [props.roles]);
+
   const theme = useTheme();
-
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  // Check if a route is active
-  const checkIsActive = (route: RouteDetail): boolean => {
-    // Exact match
-    if (path.pathname === route.path) {
-      return true;
-    }
-
-    // If route has children, check if any child is active
-    if (route.children && route.children.length > 0) {
-      return path.pathname.startsWith(route.path + "/");
-    }
-
-    return false;
-  };
+  const { checkIsActive } = useActiveRoute();
 
   const renderControlButton = (
     icon: React.ReactNode,
@@ -107,8 +90,6 @@ const Sidebar = (props: SidebarProps) => {
     return button;
   };
 
-  const currentYear = new Date().getFullYear();
-
   return (
     <Box
       sx={{
@@ -122,7 +103,7 @@ const Sidebar = (props: SidebarProps) => {
         width: props.open ? "200px" : "fit-content",
         overflow: "visible",
       }}
-    >
+  >
       {/* Navigation List */}
       <Stack
         direction="column"
@@ -210,7 +191,7 @@ const Sidebar = (props: SidebarProps) => {
               }}
             >
               {props.open
-                ? `v${pJson.version} | © ${currentYear} WSO2 LLC`
+                ? `v${pJson.version} | © ${new Date().getFullYear()} WSO2 LLC`
                 : `v${pJson.version.split(".")[0]}`}
             </Typography>,
             undefined,
