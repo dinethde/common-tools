@@ -87,25 +87,7 @@ export const routes: RouteObjectWithRole[] = [
   },
 ];
 
-export const getActiveRoutesV2 = (
-  routes: RouteObjectWithRole[] | undefined,
-  roles: string[],
-): RouteObjectWithRole[] => {
-  if (!routes) return [];
-  const routesObj: RouteObjectWithRole[] = [];
-  routes.forEach((routeObj) => {
-    if (isIncludedRole(roles, routeObj.allowRoles)) {
-      routesObj.push({
-        ...routeObj,
-        children: getActiveRoutesV2(routeObj.children, roles),
-      });
-    }
-  });
-
-  return routesObj;
-};
-
-export const getActiveRouteDetails = (roles: string[]): RouteDetail[] => {
+export const getAllowedRoutes = (roles: string[]): RouteDetail[] => {
   const routesObj: RouteDetail[] = [];
   routes.forEach((routeObj) => {
     if (isIncludedRole(roles, routeObj.allowRoles)) {
