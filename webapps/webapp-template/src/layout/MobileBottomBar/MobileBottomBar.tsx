@@ -16,14 +16,18 @@
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AppBar, Box, IconButton, Typography, useTheme } from "@mui/material";
-import { Home, Moon, Sun } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Moon, Sun } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import { useActiveRoute } from "@root/src/hooks/useActiveRoute";
+import { getAllowedRoutes } from "@src/route";
 
 interface MobileBottomBarProps {
   onMenuClick: () => void;
   onThemeToggle: () => void;
   mode: string;
   open: boolean;
+  roles: string[];
 }
 
 export default function MobileBottomBar({
@@ -31,12 +35,14 @@ export default function MobileBottomBar({
   onThemeToggle,
   open,
   mode,
+  roles,
 }: MobileBottomBarProps) {
   const theme = useTheme();
-  const location = useLocation();
   const navigate = useNavigate();
 
-  const isHomePage = location.pathname === "/" || location.pathname === "/home";
+  const routes = getAllowedRoutes(roles);
+  const { getCurrentActiveRoute } = useActiveRoute();
+  const currentRoute = getCurrentActiveRoute(routes);
 
   return (
     <AppBar
@@ -77,40 +83,37 @@ export default function MobileBottomBar({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: "4px",
+            gap: "6px",
             padding: "5px 8px",
             borderRadius: "8px",
-            backgroundColor: isHomePage
-              ? (theme.palette as any).fill?.primary_light?.active || "rgba(252, 241, 232, 1)"
-              : "transparent",
+            backgroundColor: theme.palette.fill.primary_light.active,
             cursor: "pointer",
             transition: "background-color 0.2s ease",
+            color: theme.palette.customText.brand.p1.active,
           }}
         >
-          <Home
-            size={16}
-            color={
-              isHomePage
-                ? (theme.palette as any).customText?.brand?.p1?.active || "#ff7300"
-                : (theme.palette as any).customText?.primary?.p1?.active ||
-                  theme.palette.text.primary
-            }
-            strokeWidth={2}
-          />
+          {currentRoute?.icon && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                "& svg": { width: "18px", height: "18px" },
+              }}
+            >
+              {currentRoute.icon}
+            </Box>
+          )}
+
           <Typography
             sx={{
               fontSize: "14px",
               fontFamily: "'Geist', sans-serif",
               fontWeight: 400,
               lineHeight: 1.5,
-              color: isHomePage
-                ? (theme.palette as any).customText?.brand?.p1?.active || "#ff7300"
-                : (theme.palette as any).customText?.primary?.p1?.active ||
-                  theme.palette.text.primary,
               whiteSpace: "nowrap",
             }}
           >
-            Home
+            {currentRoute?.text}
           </Typography>
         </Box>
 
@@ -121,8 +124,7 @@ export default function MobileBottomBar({
           onClick={onThemeToggle}
           sx={{
             padding: "8px",
-            color:
-              (theme.palette as any).customText?.primary?.p1?.active || theme.palette.text.primary,
+            color: theme.palette.customText.primary.p2.active,
           }}
         >
           {mode === "dark" ? <Sun size={16} /> : <Moon size={16} />}
@@ -135,8 +137,7 @@ export default function MobileBottomBar({
           onClick={onMenuClick}
           sx={{
             padding: "3px 5px 3px 0",
-            color:
-              (theme.palette as any).customText?.primary?.p1?.active || theme.palette.text.primary,
+            color: theme.palette.customText.primary.p2.active,
           }}
         >
           {open ? (
