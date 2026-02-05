@@ -31,7 +31,7 @@ type ScimUserInfo record {
     } name;
     # user email
     string userName;
-    #user groups
+    # user groups
     Groups[] groups;
 };
 
