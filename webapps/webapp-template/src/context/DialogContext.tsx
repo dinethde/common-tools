@@ -31,7 +31,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import * as React from "react";
 import { useContext, useState } from "react";
 
-import { ConfirmationType } from "@/types/types";
+import { ConfirmationType } from "@utils/types";
 
 type InputObj = {
   label: string;
@@ -87,7 +87,7 @@ const ConfirmationModalContextProvider: React.FC<ConfirmationModalContextProvide
   const [content, setContent] = useState<{
     title: string;
     message: string | React.ReactNode;
-    type: ConfirmationType
+    type: ConfirmationType;
     action: (value?: string) => void;
     okText?: string;
     cancelText?: string;
