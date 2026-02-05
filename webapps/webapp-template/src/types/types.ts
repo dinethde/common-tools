@@ -28,18 +28,6 @@ export enum AppState {
   Loading = "LOADING",
 }
 
-export enum Role {
-  ADMIN = "ADMIN",
-  EMPLOYEE = "EMPLOYEE",
-}
-
-export enum ConfirmationType {
-  update = "update",
-  send = "send",
-  upload = "upload",
-  accept = "accept",
-}
-
 export interface RouteDetail {
   path: string;
   allowRoles: string[];
