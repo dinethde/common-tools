@@ -78,7 +78,7 @@ const Header = () => {
             {APP_NAME}
           </Typography>
 
-          <BasicBreadcrumbs />
+          {!isMobile && <BasicBreadcrumbs />}
         </Box>
 
         <Box sx={{ flexGrow: 0 }}>
