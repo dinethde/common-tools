@@ -54,7 +54,9 @@ const AppHandler: FC = () => {
 
   const renderApp = () => {
     if (appState === AppState.Loading) {
-      return <PreLoader isLoading={true} message="We are getting things ready..." />;
+      return (
+        <PreLoader hideImage={false} marqueeOn={true} isLoading message="Loading User Info ..." />
+      );
     }
 
     if (appState === AppState.Maintenance) {
