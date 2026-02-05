@@ -37,11 +37,7 @@ public isolated function fetchSampleCollections(string? name, int? 'limit, int? 
 # + return - Sample collections|Error, if so
 public isolated function fetchSampleCollection(int id) returns SampleCollection|error? {
     SampleCollection|sql:Error sampleCollection = databaseClient->queryRow(getSampleCollectionQuery(id));
-
-    if sampleCollection is sql:Error && sampleCollection is sql:NoRowsError {
-        return;
-    }
-    return sampleCollection;
+    return sampleCollection is sql:NoRowsError ? () : sampleCollection;
 }
 
 # Insert sample collection.
