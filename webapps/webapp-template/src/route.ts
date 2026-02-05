@@ -32,14 +32,14 @@ export const routes: RouteObjectWithRole[] = [
     element: React.createElement(View.firstView),
     allowRoles: [Role.ADMIN, Role.EMPLOYEE],
   },
-  {
-    path: "/help",
-    text: "Help & Support",
-    icon: React.createElement(CircleQuestionMark),
-    element: React.createElement(View.help),
-    allowRoles: [Role.ADMIN, Role.EMPLOYEE],
-    bottomNav: true,
-  },
+  // {
+  //   path: "/help",
+  //   text: "Help & Support",
+  //   icon: React.createElement(CircleQuestionMark),
+  //   element: React.createElement(View.help),
+  //   allowRoles: [Role.ADMIN, Role.EMPLOYEE],
+  //   bottomNav: true,
+  // },
   {
     path: "/page",
     text: "Page 1",
@@ -74,7 +74,7 @@ export const routes: RouteObjectWithRole[] = [
         text: "Nested Page",
         icon: React.createElement(CircleQuestionMark),
         element: React.createElement(View.nestedPage),
-        allowRoles: [Role.ADMIN, Role.EMPLOYEE],
+        allowRoles: ["FSDFS"],
       },
       {
         path: "nested-page-2",
@@ -98,4 +98,26 @@ export const getAllowedRoutes = (roles: string[]): RouteDetail[] => {
     }
   });
   return routesObj;
+};
+
+interface AllowedRoutes {
+  routesParam?: RouteObjectWithRole[];
+  roles: string[];
+}
+
+export const getAllowedRoutesV2 = ({
+  routesParam = routes,
+  roles,
+}: AllowedRoutes): RouteDetail[] => {
+  if (!routesParam) return [];
+
+  return routesParam
+    .filter((routeObj) => isIncludedRole(roles, routeObj.allowRoles))
+    .map((routeObj) => ({
+      ...routeObj,
+      path: routeObj.path ?? "",
+      children: routeObj.children
+        ? getAllowedRoutesV2({ routesParam: routeObj.children, roles })
+        : undefined,
+    }));
 };
