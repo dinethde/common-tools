@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { SecureApp, useAuthContext } from "@asgardeo/auth-react";
+import { useAsgardeo } from "@asgardeo/react";
 import { useIdleTimer } from "react-idle-timer";
 
 import React, { useContext, useEffect, useState } from "react";
@@ -80,31 +80,33 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
   const {
     signIn,
     signOut,
-    getDecodedIDToken,
-    getBasicUserInfo,
-    refreshAccessToken,
-    getIDToken,
-    trySignInSilently,
+    getDecodedIdToken,
+    user,
+    signInSilently,
     getAccessToken,
-    state,
-  } = useAuthContext();
+    isLoading,
+    isSignedIn,
+  } = useAsgardeo();
 
   const setupAuthenticatedUser = async () => {
-    const [userInfo, idToken, decodedIdToken] = await Promise.all([
-      getBasicUserInfo(),
-      getIDToken(),
-      getDecodedIDToken(),
+    const [decodedIdToken, accessToken] = await Promise.all([
+      getDecodedIdToken(),
+      getAccessToken(),
     ]);
 
     dispatch(
       setUserAuthData({
-        userInfo: userInfo,
+        userInfo: user,
         decodedIdToken: decodedIdToken,
       }),
     );
 
-    setTokens(idToken, refreshToken, appSignOut);
-    await triggerGetUserInfo();
+    setTokens(accessToken, refreshToken, appSignOut);
+    const userInfoResult = await triggerGetUserInfo();
+    if (userInfoResult?.isError) {
+      console.error("Failed to fetch user info:", userInfoResult.error);
+      dispatch(setAuthError());
+    }
 
     await dispatch(loadPrivileges());
   };
@@ -116,15 +118,15 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
       try {
         setAppState(AppState.Loading);
 
-        if (state.isLoading) return;
+        if (isLoading) return;
 
-        if (state.isAuthenticated) {
+        if (isSignedIn) {
           setAppState(AppState.Authenticating);
           await setupAuthenticatedUser();
 
           if (mounted) setAppState(AppState.Authenticated);
         } else {
-          const silentSignInSuccess = await trySignInSilently();
+          const silentSignInSuccess = await signInSilently();
 
           if (mounted)
             setAppState(silentSignInSuccess ? AppState.Authenticating : AppState.Unauthenticated);
@@ -141,16 +143,10 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
     return () => {
       mounted = false;
     };
-  }, [state.isAuthenticated, state.isLoading]);
+  }, [isSignedIn, isLoading]);
 
   const refreshToken = async (): Promise<{ accessToken: string }> => {
-    if (state.isAuthenticated) {
-      const accessToken = await getIDToken();
-      return { accessToken };
-    }
-
     try {
-      await refreshAccessToken();
       const accessToken = await getAccessToken();
       return { accessToken };
     } catch (error) {
@@ -179,7 +175,7 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
   const renderContent = () => {
     switch (appState) {
       case AppState.Loading:
-        return <PreLoader isLoading message="Loading ..." />;
+        return <PreLoader isLoading message="Authenticating ..." />;
 
       case AppState.Authenticating:
         return <PreLoader isLoading message="Loading User Info ..." />;
@@ -207,9 +203,7 @@ const AppAuthProvider = (props: { children: React.ReactNode }) => {
         appSignOut={appSignOut}
       />
 
-      <SecureApp fallback={<PreLoader isLoading message="We are getting things ready ..." />}>
-        {renderContent()}
-      </SecureApp>
+      {renderContent()}
     </>
   );
 };

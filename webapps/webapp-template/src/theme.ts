@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -295,7 +295,7 @@ export const tokens = (mode: PaletteMode) => {
               disabled: "#00CEFF96",
             },
             secondary_light: {
-              active: colors.secondary["200"],
+              active: colors.secondary["100"],
               hover: "#FFFFFF",
             },
             neutral_light: {
@@ -621,17 +621,17 @@ export const themeSettings = (mode: PaletteMode) => {
       MuiButton: {
         styleOverrides: {
           root: {
-            textTransform: "none",
+            textTransform: "none" as const,
             borderRadius: 8,
             fontWeight: 500,
           },
           contained: {
             backgroundColor: colors.fill.primary.clicked,
             color: colors.text.brand.p2.active,
-            boxShadow: "none",
+            boxShadow: "none" as const,
             "&:hover": {
               backgroundColor: colors.fill.primary.hover,
-              boxShadow: "none",
+              boxShadow: "none" as const,
             },
             "&:active": {
               backgroundColor: colors.fill.primary.active,
@@ -662,11 +662,11 @@ export const themeSettings = (mode: PaletteMode) => {
             style: {
               padding: "8px 16px",
               backgroundColor: colors.fill.primary.active,
-              boxShadow: "none",
+              boxShadow: "none" as const,
               width: "fit-content",
               "&:hover": {
                 backgroundColor: colors.fill.primary.hover,
-                boxShadow: "none",
+                boxShadow: "none" as const,
               },
               "&.Mui-disabled": {
                 backgroundColor: colors.fill.primary.disabled,
@@ -767,7 +767,7 @@ export const themeSettings = (mode: PaletteMode) => {
       MuiTooltip: {
         defaultProps: {
           arrow: true,
-          placement: "right",
+          placement: "right" as const,
         },
         styleOverrides: {
           tooltip: {
@@ -787,7 +787,7 @@ export const themeSettings = (mode: PaletteMode) => {
     breakpoints: {
       values: {
         xs: 0,
-        sm: 600,
+        sm: 700,
         md: 960,
         lg: 1280,
         xl: 1920,

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,17 +13,27 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { Avatar, Box, Menu, MenuItem, Stack, Tooltip, useTheme } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Menu,
+  MenuItem,
+  Stack,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { userApi } from "@services/user.api";
 
 import React from "react";
 
+import wso2LogoO from "@assets/images/wso2-logo-o.svg";
 import Wso2Logo from "@assets/images/wso2-logo.svg";
 import { APP_NAME } from "@config/config";
 import { useAppAuthContext } from "@context/AuthContext";
 import BasicBreadcrumbs from "@layout/BreadCrumbs/BreadCrumbs";
+import { userApi } from "@services/user.api";
 import { useAppSelector } from "@slices/store";
 
 const Header = () => {
@@ -32,6 +42,9 @@ const Header = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
   const user = useAppSelector((state) => userApi.endpoints.getUserInfo.select()(state)?.data);
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const logo = isMobile ? wso2LogoO : Wso2Logo;
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -56,18 +69,15 @@ const Header = () => {
           display: "flex",
           gap: 0.5,
           "&.MuiToolbar-root": {
-            pl: 0.3,
+            px: 1.5,
           },
         }}
       >
         <img
           alt="wso2"
-          style={{
-            height: "40px",
-            maxWidth: "100px",
-          }}
+          style={{ marginRight: isMobile ? "4px" : "8px" }}
           onClick={() => (window.location.href = "/")}
-          src={Wso2Logo}
+          src={logo}
         ></img>
 
         <Box
@@ -88,7 +98,7 @@ const Header = () => {
           >
             {APP_NAME}
           </Typography>
-          <BasicBreadcrumbs />
+          {!isMobile && <BasicBreadcrumbs />}
         </Box>
 
         <Box sx={{ flexGrow: 0 }}>
@@ -110,26 +120,30 @@ const Header = () => {
                     {user.firstName?.charAt(0)}
                   </Avatar>
                 </Tooltip>
-                <Box sx={{ width: "fit-content" }}>
-                  <Typography
-                    noWrap
-                    variant="body1"
-                    sx={{
-                      color: theme.palette.customText.primary.p2.active,
-                    }}
-                  >
-                    {[user.firstName, user.lastName].filter(Boolean).join(" ")}
-                  </Typography>
-                  <Typography
-                    noWrap
-                    variant="body2"
-                    sx={{
-                      color: theme.palette.customText.primary.p3.active,
-                    }}
-                  >
-                    {user.jobRole}
-                  </Typography>
-                </Box>
+
+                {!isMobile && (
+                  <Box sx={{ width: "fit-content" }}>
+                    <Typography
+                      noWrap
+                      variant="body1"
+                      sx={{
+                        color: theme.palette.customText.primary.p2.active,
+                      }}
+                    >
+                      {[user.firstName, user.lastName].filter(Boolean).join(" ")}
+                    </Typography>
+
+                    <Typography
+                      noWrap
+                      variant="body2"
+                      sx={{
+                        color: theme.palette.customText.primary.p3.active,
+                      }}
+                    >
+                      {user.jobRole}
+                    </Typography>
+                  </Box>
+                )}
               </Stack>
 
               <Menu

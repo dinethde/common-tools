@@ -105,11 +105,11 @@ service http:InterceptableService / on new http:Listener(9090) {
 
         // Fetch the user's privileges based on the roles.
         int[] privileges = [];
-        if authorization:checkPermissions([authorization:authorizedRoles.employeeRole], userInfo.groups) {
-            privileges.push(authorization:EMPLOYEE_ROLE_PRIVILEGE);
+        if authorization:checkPermissions([authorization:authorizedRoles.EMPLOYEE_PRIVILEGE], userInfo.groups) {
+            privileges.push(authorization:EMPLOYEE_PRIVILEGE);
         }
-        if authorization:checkPermissions([authorization:authorizedRoles.headPeopleOperationsRole], userInfo.groups) {
-            privileges.push(authorization:HEAD_PEOPLE_OPERATIONS_PRIVILEGE);
+        if authorization:checkPermissions([authorization:authorizedRoles.ADMIN_PRIVILEGE], userInfo.groups) {
+            privileges.push(authorization:ADMIN_PRIVILEGE);
         }
 
         UserInfoResponse userInfoResponse = {...loggedInUser, privileges};
@@ -142,7 +142,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         }
 
         // [Start] Custom Resource level authorization.
-        if !authorization:checkPermissions([authorization:authorizedRoles.employeeRole],
+        if !authorization:checkPermissions([authorization:authorizedRoles.EMPLOYEE_PRIVILEGE],
                 userInfo.groups) {
             return <http:Forbidden>{
                 body: {
@@ -188,7 +188,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         }
 
         // [Start] Custom Resource level authorization.
-        if !authorization:checkPermissions([authorization:authorizedRoles.headPeopleOperationsRole],
+        if !authorization:checkPermissions([authorization:authorizedRoles.ADMIN_PRIVILEGE],
                 userInfo.groups) {
 
             return <http:Forbidden>{

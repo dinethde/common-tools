@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -50,10 +50,10 @@ export const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
-
   if (result.error && result.error.status === 401) {
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
+
       try {
         const refreshResult = await REFRESH_TOKEN_CALLBACK();
         if (refreshResult?.accessToken) {
@@ -86,12 +86,19 @@ export const baseQueryWithRetry = retry(
   async (args: string | FetchArgs, api, extraOptions) => {
     const result = await baseQueryWithReauth(args, api, extraOptions);
 
-    // Bail out for 401 because reauth handles it (and will logout if needed)
-    if (result.error?.status === 401) {
-      retry.fail(result.error, result.meta);
+    if (result.error) {
+      if (result.error.status !== 400 && result.error.status !== 404) {
+        retry.fail(result.error, result.meta);
+      }
     }
 
     return result;
   },
-  { maxRetries: 3 },
+  {
+    maxRetries: 3,
+    backoff: async (attempt: number = 0, maxRetries: number = 3) => {
+      const delay = Math.min(1000 * 2 ** attempt, 10000);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    },
+  },
 );

@@ -14,6 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# User groups record
+public type Groups record {
+    # Groups display name
+    string display;
+};
+
+# Asgardeo return user values
+type ScimUserInfo record {
+    # id
+    string id;
+    # user name
+    record {
+        string givenName;
+        string familyName;
+    } name;
+    # user email
+    string userName;
+    #user groups
+    Groups[] groups;
+};
+
 # User info custom type for Asgardeo token.
 public type CustomJwtPayload record {
     # User email
@@ -25,7 +46,7 @@ public type CustomJwtPayload record {
 # Application specific role mapping.
 public type AppRoles record {|
     # Role for the employee
-    string employeeRole;
+    string EMPLOYEE_PRIVILEGE;
     # Role for the head of people operations
-    string headPeopleOperationsRole;
+    string ADMIN_PRIVILEGE;
 |};

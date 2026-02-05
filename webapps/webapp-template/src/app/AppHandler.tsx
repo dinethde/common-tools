@@ -13,26 +13,31 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
-import { useEffect, useMemo, useState } from "react";
+import { FC, memo, useMemo } from "react";
 
+import { AppState } from "@/types/types";
 import ErrorHandler from "@component/common/ErrorHandler";
 import PreLoader from "@component/common/PreLoader";
 import Layout from "@layout/Layout";
 import NotFoundPage from "@layout/pages/404";
 import MaintenancePage from "@layout/pages/Maintenance";
-import { RootState, useAppSelector } from "@slices/store";
+import { RootState } from "@slices/store";
+import { useAppSelector } from "@slices/store";
+import { getAllowedRoutes } from "@src/route";
 
-import { getActiveRoutesV2, routes } from "../route";
+const getAppState = (authStatus: string, authMode: string): AppState => {
+  if (authMode === AppState.Maintenance) return AppState.Maintenance;
+  if (authStatus === AppState.Loading) return AppState.Loading;
+  if (authStatus === AppState.Failed) return AppState.Failed;
+  return AppState.Success;
+};
 
-const AppHandler = () => {
-  const [appState, setAppState] = useState<"loading" | "success" | "failed" | "maintenance">(
-    "loading",
-  );
+const AppHandler: FC = () => {
+  const { status, mode, roles, statusMessage } = useAppSelector((state: RootState) => state.auth);
 
-  const auth = useAppSelector((state: RootState) => state.auth);
+  const appState = useMemo(() => getAppState(status, mode), [status, mode]);
 
   const router = useMemo(
     () =>
@@ -41,41 +46,29 @@ const AppHandler = () => {
           path: "/",
           element: <Layout />,
           errorElement: <NotFoundPage />,
-          children: getActiveRoutesV2(routes, auth.roles),
+          children: getAllowedRoutes(roles),
         },
       ]),
-    [auth.roles],
+    [roles],
   );
 
-  useEffect(() => {
-    if (auth.status === "loading") {
-      setAppState("loading");
-    } else if (auth.status === "success") {
-      setAppState("success");
-    } else if (auth.status === "failed") {
-      setAppState("failed");
-    } else if (auth.mode === "maintenance") {
-      setAppState("maintenance");
-    }
-  }, [auth.status, auth.mode]);
-
   const renderApp = () => {
-    switch (appState) {
-      case "loading":
-        return <PreLoader isLoading={true} message={"We are getting things ready ..."} />;
-
-      case "failed":
-        return <ErrorHandler message={auth.statusMessage} />;
-
-      case "success":
-        return <RouterProvider router={router} />;
-
-      case "maintenance":
-        return <MaintenancePage />;
+    if (appState === AppState.Loading) {
+      return <PreLoader isLoading={true} message="We are getting things ready..." />;
     }
+
+    if (appState === AppState.Maintenance) {
+      return <MaintenancePage />;
+    }
+
+    if (appState === AppState.Failed) {
+      return <ErrorHandler message={statusMessage} />;
+    }
+
+    return <RouterProvider router={router} />;
   };
 
-  return <>{renderApp()}</>;
+  return renderApp();
 };
 
-export default AppHandler;
+export default memo(AppHandler);
