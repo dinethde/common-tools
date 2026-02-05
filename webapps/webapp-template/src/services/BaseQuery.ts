@@ -87,7 +87,7 @@ export const baseQueryWithRetry = retry(
     const result = await baseQueryWithReauth(args, api, extraOptions);
 
     if (result.error) {
-      if (result.error.status !== 400 && result.error.status !== 404) {
+      if (result.error.status !== 500 && result.error.status !== 404) {
         retry.fail(result.error, result.meta);
       }
     }
