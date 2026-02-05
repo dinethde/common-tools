@@ -20,7 +20,7 @@ import { Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useActiveRoute } from "@root/src/hooks/useActiveRoute";
-import { getAllowedRoutes } from "@src/route";
+import { getAllowedRoutesV2 } from "@src/route";
 
 interface MobileBottomBarProps {
   onMenuClick: () => void;
@@ -40,7 +40,7 @@ export default function MobileBottomBar({
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const routes = getAllowedRoutes(roles);
+  const routes = getAllowedRoutesV2({ roles: roles });
   const { getCurrentActiveRoute } = useActiveRoute();
   const currentRoute = getCurrentActiveRoute(routes);
 
