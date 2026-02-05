@@ -22,6 +22,7 @@
     "@mui/x-data-grid": "^8.7.0",
     "@mui/x-date-pickers": "^8.7.0",
     "@reduxjs/toolkit": "^2.8.2",
+    "lottie-react": "^2.4.1",
     "@uiw/react-markdown-preview": "^5.1.4",
     "async-mutex": "^0.5.0",
     "axios": "^1.13.2",
