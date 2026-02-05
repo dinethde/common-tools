@@ -21,7 +21,7 @@ import { useMemo } from "react";
 import SidebarNavItem from "@component/layout/SidebarNavItem";
 import pJson from "@root/package.json";
 import { useActiveRoute } from "@root/src/hooks/useActiveRoute";
-import { getAllowedRoutes } from "@src/route";
+import { getAllowedRoutesV2 } from "@src/route";
 
 interface SidebarProps {
   open: boolean;
@@ -35,7 +35,7 @@ interface SidebarProps {
 const Sidebar = (props: SidebarProps) => {
   const { mode, onThemeToggle } = props;
 
-  const allRoutes = useMemo(() => getAllowedRoutes(props.roles), [props.roles]);
+  const allRoutes = useMemo(() => getAllowedRoutesV2({ roles: props.roles }), [props.roles]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -103,7 +103,7 @@ const Sidebar = (props: SidebarProps) => {
         width: props.open ? "200px" : "fit-content",
         overflow: "visible",
       }}
-  >
+    >
       {/* Navigation List */}
       <Stack
         direction="column"
